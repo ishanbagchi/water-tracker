@@ -18,10 +18,9 @@ import { formatDateLabel } from '@/lib/utils'
 import type { HistoryDay } from '@/types'
 
 // Dynamically import ReactECharts with SSR disabled – ECharts requires the DOM
-const ReactEChartsCore = dynamic(
-	() => import('echarts-for-react/lib/core'),
-	{ ssr: false },
-)
+const ReactEChartsCore = dynamic(() => import('echarts-for-react/lib/core'), {
+	ssr: false,
+})
 
 // Register only the ECharts modules we need (tree-shakeable)
 echarts.use([
@@ -67,7 +66,9 @@ export default function HistoryChart({ data, goal }: HistoryChartProps) {
 	const colors = useMemo(
 		() => ({
 			primary: '#3b82f6', // brand-500
-			primaryLight: isDark ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.15)',
+			primaryLight: isDark
+				? 'rgba(59,130,246,0.25)'
+				: 'rgba(59,130,246,0.15)',
 			goalLine: isDark ? '#f59e0b' : '#d97706', // amber
 			text: isDark ? '#9ca3af' : '#6b7280',
 			axisTick: isDark ? '#374151' : '#e5e7eb',
@@ -115,7 +116,8 @@ export default function HistoryChart({ data, goal }: HistoryChartProps) {
 					const p = Array.isArray(params) ? params[0] : params
 					const idx = p.dataIndex as number
 					const day = data[idx]
-					const pct = goal > 0 ? Math.round((day.total / goal) * 100) : 0
+					const pct =
+						goal > 0 ? Math.round((day.total / goal) * 100) : 0
 					const metLabel =
 						day.total >= goal
 							? '<span style="color:#22c55e">✓ Goal met</span>'
@@ -146,12 +148,16 @@ export default function HistoryChart({ data, goal }: HistoryChartProps) {
 			yAxis: {
 				type: 'value' as const,
 				splitLine: {
-					lineStyle: { color: colors.axisTick, type: 'dashed' as const },
+					lineStyle: {
+						color: colors.axisTick,
+						type: 'dashed' as const,
+					},
 				},
 				axisLabel: {
 					color: colors.text,
 					fontSize: 11,
-					formatter: (v: number) => (v >= 1000 ? `${v / 1000}L` : `${v}`),
+					formatter: (v: number) =>
+						v >= 1000 ? `${v / 1000}L` : `${v}`,
 				},
 			},
 		}

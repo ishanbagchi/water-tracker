@@ -33,10 +33,7 @@ function subtractDay(dateStr: string): string {
  * timezone. If the current local hour is before `resetHour`, the
  * effective date is shifted back one day.
  */
-export function getTodayDateString(
-	resetHour = 0,
-	timezone = 'UTC',
-): string {
+export function getTodayDateString(resetHour = 0, timezone = 'UTC'): string {
 	const { dateStr, hour } = nowInTimezone(timezone)
 	if (hour < resetHour) {
 		return subtractDay(dateStr)

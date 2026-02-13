@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/api-client'
-import type { ApiResponse, TodayData, HistoryDay, MonthData } from '@/types'
+import type { ApiResponse, TodayData, HistoryDay, MonthData, StreaksData, StatsData } from '@/types'
 
 // ── Query Keys (centralised for cache invalidation) ──
 export const waterKeys = {
@@ -9,6 +9,8 @@ export const waterKeys = {
 	day: (date: string) => ['water', 'day', date] as const,
 	month: (year: number, month: number) =>
 		['water', 'month', year, month] as const,
+	streaks: ['water', 'streaks'] as const,
+	stats: (period: string) => ['water', 'stats', period] as const,
 }
 
 /** GET /water/today – today's total + entries list. */
@@ -86,6 +88,8 @@ export function useLogWater() {
 			// Always refetch to sync with server
 			queryClient.invalidateQueries({ queryKey: waterKeys.today })
 			queryClient.invalidateQueries({ queryKey: waterKeys.history })
+			queryClient.invalidateQueries({ queryKey: waterKeys.streaks })
+			queryClient.invalidateQueries({ queryKey: ['water', 'stats'] })
 		},
 	})
 }
@@ -101,6 +105,8 @@ export function useDeleteWaterEntry() {
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: waterKeys.today })
 			queryClient.invalidateQueries({ queryKey: waterKeys.history })
+			queryClient.invalidateQueries({ queryKey: waterKeys.streaks })
+			queryClient.invalidateQueries({ queryKey: ['water', 'stats'] })
 			// Invalidate all day-specific queries too
 			queryClient.invalidateQueries({ queryKey: ['water', 'day'] })
 		},
@@ -137,6 +143,33 @@ export function useLogWaterForDate(date: string) {
 			queryClient.invalidateQueries({ queryKey: waterKeys.day(date) })
 			queryClient.invalidateQueries({ queryKey: waterKeys.history })
 			queryClient.invalidateQueries({ queryKey: waterKeys.today })
+			queryClient.invalidateQueries({ queryKey: waterKeys.streaks })
+			queryClient.invalidateQueries({ queryKey: ['water', 'stats'] })
+		},
+	})
+}
+
+/** GET /water/streaks – current streak, longest streak, badges. */
+export function useStreaks() {
+	return useQuery({
+		queryKey: waterKeys.streaks,
+		queryFn: async () => {
+			const { data } =
+				await apiClient.get<ApiResponse<StreaksData>>('/water/streaks')
+			return data.data
+		},
+	})
+}
+
+/** GET /water/stats – aggregate stats for a period (week/month/all). */
+export function useStats(period: 'week' | 'month' | 'all' = 'week') {
+	return useQuery({
+		queryKey: waterKeys.stats(period),
+		queryFn: async () => {
+			const { data } = await apiClient.get<ApiResponse<StatsData>>(
+				`/water/stats?period=${period}`,
+			)
+			return data.data
 		},
 	})
 }

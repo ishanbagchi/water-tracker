@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react'
 import { LogOut } from 'lucide-react'
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card, Button, Input } from '@/components/ui'
-import { useUser, useUpdateSettings, useChangePassword, useLogout } from '@/hooks'
+import {
+	useUser,
+	useUpdateSettings,
+	useChangePassword,
+	useLogout,
+} from '@/hooks'
 
 export default function SettingsPage() {
 	const { data: user, isLoading } = useUser()
@@ -82,7 +87,8 @@ export default function SettingsPage() {
 				},
 				onError: (err: any) => {
 					setPasswordError(
-						err?.response?.data?.message || 'Failed to change password',
+						err?.response?.data?.message ||
+							'Failed to change password',
 					)
 				},
 			},
@@ -129,7 +135,9 @@ export default function SettingsPage() {
 									type="number"
 									min={1}
 									value={dailyGoal}
-									onChange={(e) => setDailyGoal(e.target.value)}
+									onChange={(e) =>
+										setDailyGoal(e.target.value)
+									}
 								/>
 
 								{/* Unit toggle */}
@@ -172,36 +180,42 @@ export default function SettingsPage() {
 										)}
 									</div>
 									<div className="space-y-2">
-										{quickAddAmounts.map((amount, index) => (
-											<div key={index} className="flex gap-2">
-												<Input
-													type="number"
-													min={1}
-													placeholder="e.g. 250"
-													value={amount}
-													onChange={(e) =>
-														updateQuickAddAmount(
-															index,
-															e.target.value,
-														)
-													}
-													className="flex-1"
-												/>
-												{quickAddAmounts.length > 1 && (
-													<button
-														type="button"
-														onClick={() =>
-															removeQuickAddSlot(
+										{quickAddAmounts.map(
+											(amount, index) => (
+												<div
+													key={index}
+													className="flex gap-2"
+												>
+													<Input
+														type="number"
+														min={1}
+														placeholder="e.g. 250"
+														value={amount}
+														onChange={(e) =>
+															updateQuickAddAmount(
 																index,
+																e.target.value,
 															)
 														}
-														className="rounded-lg px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
-													>
-														✕
-													</button>
-												)}
-											</div>
-										))}
+														className="flex-1"
+													/>
+													{quickAddAmounts.length >
+														1 && (
+														<button
+															type="button"
+															onClick={() =>
+																removeQuickAddSlot(
+																	index,
+																)
+															}
+															className="rounded-lg px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+														>
+															✕
+														</button>
+													)}
+												</div>
+											),
+										)}
 									</div>
 									<p className="mt-1 text-xs text-gray-400">
 										Customize your quick-add buttons (1-5
@@ -215,37 +229,38 @@ export default function SettingsPage() {
 										Day Reset Time
 									</label>
 									<p className="mb-2 text-xs text-gray-400">
-										When should a new day start? Entries logged
-										before this hour count towards the previous
-										day.
+										When should a new day start? Entries
+										logged before this hour count towards
+										the previous day.
 									</p>
 									<div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-										{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(
-											(h) => {
-												const label =
-													h === 0
-														? '12 AM'
-														: h < 12
-															? `${h} AM`
-															: `${h - 12 || 12} PM`
-												return (
-													<button
-														key={h}
-														type="button"
-														onClick={() =>
-															setDayResetHour(h)
-														}
-														className={`rounded-xl px-2 py-2 text-xs font-medium transition-colors ${
-															dayResetHour === h
-																? 'bg-brand-600 text-white'
-																: 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-														}`}
-													>
-														{label}
-													</button>
-												)
-											},
-										)}
+										{[
+											0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+											11,
+										].map((h) => {
+											const label =
+												h === 0
+													? '12 AM'
+													: h < 12
+														? `${h} AM`
+														: `${h - 12 || 12} PM`
+											return (
+												<button
+													key={h}
+													type="button"
+													onClick={() =>
+														setDayResetHour(h)
+													}
+													className={`rounded-xl px-2 py-2 text-xs font-medium transition-colors ${
+														dayResetHour === h
+															? 'bg-brand-600 text-white'
+															: 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+													}`}
+												>
+													{label}
+												</button>
+											)
+										})}
 									</div>
 								</div>
 
@@ -295,13 +310,18 @@ export default function SettingsPage() {
 								<h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
 									Change Password
 								</h2>
-								<form onSubmit={handleChangePassword} className="space-y-4">
+								<form
+									onSubmit={handleChangePassword}
+									className="space-y-4"
+								>
 									<Input
 										label="Current Password"
 										type="password"
 										placeholder="••••••••"
 										value={currentPassword}
-										onChange={(e) => setCurrentPassword(e.target.value)}
+										onChange={(e) =>
+											setCurrentPassword(e.target.value)
+										}
 										required
 										autoComplete="current-password"
 									/>
@@ -310,7 +330,9 @@ export default function SettingsPage() {
 										type="password"
 										placeholder="At least 6 characters"
 										value={newPassword}
-										onChange={(e) => setNewPassword(e.target.value)}
+										onChange={(e) =>
+											setNewPassword(e.target.value)
+										}
 										required
 										minLength={6}
 										autoComplete="new-password"
@@ -321,15 +343,19 @@ export default function SettingsPage() {
 										placeholder="••••••••"
 										value={confirmNewPassword}
 										onChange={(e) =>
-											setConfirmNewPassword(e.target.value)
+											setConfirmNewPassword(
+												e.target.value,
+											)
 										}
 										required
 										autoComplete="new-password"
 									/>
 
-									{(passwordError || changePassword.isError) && (
+									{(passwordError ||
+										changePassword.isError) && (
 										<p className="text-sm text-red-500">
-											{passwordError || 'Failed to change password'}
+											{passwordError ||
+												'Failed to change password'}
 										</p>
 									)}
 

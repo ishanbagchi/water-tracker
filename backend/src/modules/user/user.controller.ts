@@ -33,10 +33,11 @@ export class UserController {
 		@Req() req: Request,
 		@Body() dto: ChangePasswordDto,
 	): Promise<ApiResponse> {
-		await this.userService.changePassword(
-			(req as any).user.sub,
-			dto,
-		)
-		return { success: true, data: null, message: 'Password changed successfully' }
+		await this.userService.changePassword((req as any).user.sub, dto)
+		return {
+			success: true,
+			data: null,
+			message: 'Password changed successfully',
+		}
 	}
 }

@@ -5,6 +5,7 @@ import {
 	Delete,
 	Param,
 	Body,
+	Query,
 	UseGuards,
 	Req,
 } from '@nestjs/common'
@@ -81,6 +82,24 @@ export class WaterController {
 			dto,
 		)
 		return { success: true, data: entry, message: 'Water logged' }
+	}
+
+	@Get('streaks')
+	async getStreaks(@Req() req: Request): Promise<ApiResponse> {
+		const data = await this.waterService.getStreaks((req as any).user.sub)
+		return { success: true, data }
+	}
+
+	@Get('stats')
+	async getStats(
+		@Req() req: Request,
+		@Query('period') period?: 'week' | 'month' | 'all',
+	): Promise<ApiResponse> {
+		const data = await this.waterService.getStats(
+			(req as any).user.sub,
+			period || 'week',
+		)
+		return { success: true, data }
 	}
 
 	@Delete(':id')

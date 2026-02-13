@@ -26,14 +26,14 @@ A minimalist full-stack water intake tracker built to help you build healthy hyd
 
 ## 🏗 Tech Stack
 
-| Layer | Technology |
-| ---------- | ----------------------------------------------------------------- |
-| **Frontend** | Next.js 14 (App Router), React 18, Tailwind CSS 3, TanStack Query 5 |
-| **Backend** | NestJS 10, Passport JWT + Google OAuth, class-validator DTOs |
-| **Database** | MongoDB Atlas with Mongoose 8 ODM |
-| **Charts** | Apache ECharts (tree-shaken, SSR-safe via `next/dynamic`) |
-| **Animation** | Framer Motion 11 |
-| **Icons** | Lucide React |
+| Layer         | Technology                                                          |
+| ------------- | ------------------------------------------------------------------- |
+| **Frontend**  | Next.js 14 (App Router), React 18, Tailwind CSS 3, TanStack Query 5 |
+| **Backend**   | NestJS 10, Passport JWT + Google OAuth, class-validator DTOs        |
+| **Database**  | MongoDB Atlas with Mongoose 8 ODM                                   |
+| **Charts**    | Apache ECharts (tree-shaken, SSR-safe via `next/dynamic`)           |
+| **Animation** | Framer Motion 11                                                    |
+| **Icons**     | Lucide React                                                        |
 
 ---
 
@@ -136,32 +136,32 @@ All endpoints are prefixed with `/api`.
 
 ### Auth
 
-| Method | Endpoint | Description |
+| Method | Endpoint                | Description                      |
 | ------ | ----------------------- | -------------------------------- |
-| POST | `/auth/register` | Register with email & password |
-| POST | `/auth/login` | Login and receive JWT |
-| GET | `/auth/google` | Initiate Google OAuth flow |
-| GET | `/auth/google/callback` | Google OAuth callback (redirect) |
+| POST   | `/auth/register`        | Register with email & password   |
+| POST   | `/auth/login`           | Login and receive JWT            |
+| GET    | `/auth/google`          | Initiate Google OAuth flow       |
+| GET    | `/auth/google/callback` | Google OAuth callback (redirect) |
 
-### User *(JWT required)*
+### User _(JWT required)_
 
-| Method | Endpoint | Description |
-| ------ | --------------- | -------------------------------------------- |
-| GET | `/user/me` | Get current user profile |
-| PATCH | `/user/settings`| Update settings (goal, unit, timezone, etc.) |
-| PATCH | `/user/password`| Change password |
+| Method | Endpoint         | Description                                  |
+| ------ | ---------------- | -------------------------------------------- |
+| GET    | `/user/me`       | Get current user profile                     |
+| PATCH  | `/user/settings` | Update settings (goal, unit, timezone, etc.) |
+| PATCH  | `/user/password` | Change password                              |
 
-### Water *(JWT required)*
+### Water _(JWT required)_
 
-| Method | Endpoint | Description |
-| ------ | --------------------------- | ------------------------------ |
-| POST | `/water/log` | Log water for today |
-| GET | `/water/today` | Get today's entries & total |
-| GET | `/water/history` | Get last 7 days summary |
-| GET | `/water/month/:year/:month` | Get full month aggregate |
-| GET | `/water/day/:date` | Get entries for a specific date |
-| POST | `/water/log/:date` | Log water for a specific date |
-| DELETE | `/water/:id` | Delete a water entry |
+| Method | Endpoint                    | Description                     |
+| ------ | --------------------------- | ------------------------------- |
+| POST   | `/water/log`                | Log water for today             |
+| GET    | `/water/today`              | Get today's entries & total     |
+| GET    | `/water/history`            | Get last 7 days summary         |
+| GET    | `/water/month/:year/:month` | Get full month aggregate        |
+| GET    | `/water/day/:date`          | Get entries for a specific date |
+| POST   | `/water/log/:date`          | Log water for a specific date   |
+| DELETE | `/water/:id`                | Delete a water entry            |
 
 ---
 

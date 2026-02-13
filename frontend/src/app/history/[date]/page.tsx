@@ -15,7 +15,12 @@ import {
 } from 'lucide-react'
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card, Button, Input } from '@/components/ui'
-import { useWaterByDate, useLogWaterForDate, useDeleteWaterEntry, useUser } from '@/hooks'
+import {
+	useWaterByDate,
+	useLogWaterForDate,
+	useDeleteWaterEntry,
+	useUser,
+} from '@/hooks'
 import { formatAmount, formatTime } from '@/lib/utils'
 
 /** Icon rotation for quick-add buttons */
@@ -99,7 +104,10 @@ export default function DayDetailPage() {
 								<motion.div
 									initial={{ width: 0 }}
 									animate={{ width: `${progressPct}%` }}
-									transition={{ duration: 0.6, ease: 'easeOut' }}
+									transition={{
+										duration: 0.6,
+										ease: 'easeOut',
+									}}
 									className={`h-full rounded-full ${
 										metGoal
 											? 'bg-green-500'
@@ -124,7 +132,9 @@ export default function DayDetailPage() {
 											whileTap={{ scale: 0.93 }}
 											whileHover={{ scale: 1.03 }}
 											disabled={logWater.isPending}
-											onClick={() => logWater.mutate(amount)}
+											onClick={() =>
+												logWater.mutate(amount)
+											}
 											className="flex flex-col items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-5
 												shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50
 												disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900
@@ -146,7 +156,10 @@ export default function DayDetailPage() {
 							<h2 className="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400">
 								Custom Amount
 							</h2>
-							<form onSubmit={handleCustomSubmit} className="flex items-end gap-3">
+							<form
+								onSubmit={handleCustomSubmit}
+								className="flex items-end gap-3"
+							>
 								<div className="flex-1">
 									<Input
 										label="Amount (ml)"
@@ -154,13 +167,18 @@ export default function DayDetailPage() {
 										min={1}
 										placeholder="e.g. 350"
 										value={customAmount}
-										onChange={(e) => setCustomAmount(e.target.value)}
+										onChange={(e) =>
+											setCustomAmount(e.target.value)
+										}
 									/>
 								</div>
 								<Button
 									type="submit"
 									size="md"
-									disabled={!customAmount || parseInt(customAmount) <= 0}
+									disabled={
+										!customAmount ||
+										parseInt(customAmount) <= 0
+									}
 									isLoading={logWater.isPending}
 									className="mb-0.5"
 								>
@@ -195,15 +213,26 @@ export default function DayDetailPage() {
 											>
 												<div>
 													<span className="font-medium text-gray-900 dark:text-white">
-														{formatAmount(entry.amount, user?.unit ?? 'ml')}
+														{formatAmount(
+															entry.amount,
+															user?.unit ?? 'ml',
+														)}
 													</span>
 													<span className="ml-2 text-xs text-gray-400">
-														{formatTime(entry.timestamp)}
+														{formatTime(
+															entry.timestamp,
+														)}
 													</span>
 												</div>
 												<button
-													onClick={() => deleteEntry.mutate(entry._id)}
-													disabled={deleteEntry.isPending}
+													onClick={() =>
+														deleteEntry.mutate(
+															entry._id,
+														)
+													}
+													disabled={
+														deleteEntry.isPending
+													}
 													className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500
 														dark:hover:bg-red-950"
 													aria-label="Delete entry"

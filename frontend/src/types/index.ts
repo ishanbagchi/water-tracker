@@ -54,3 +54,30 @@ export interface AuthResponse {
 	accessToken: string
 	user: { id: string; email: string }
 }
+
+/** A single badge earned by the user. */
+export interface Badge {
+	id: string
+	name: string
+	emoji: string
+	description: string
+}
+
+/** Response from GET /water/streaks */
+export interface StreaksData {
+	currentStreak: number
+	longestStreak: number
+	totalGoalDays: number
+	badges: Badge[]
+}
+
+/** Response from GET /water/stats */
+export interface StatsData {
+	period: 'week' | 'month' | 'all'
+	totalLogged: number
+	averageDaily: number
+	bestDay: { date: string; total: number }
+	goalHitRate: number
+	daysTracked: number
+	daysGoalMet: number
+}

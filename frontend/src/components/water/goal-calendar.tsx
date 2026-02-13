@@ -100,7 +100,8 @@ export default function GoalCalendar() {
 			{/* Goal count */}
 			{!isLoading && goalMetCount > 0 && (
 				<p className="text-center text-[11px] font-medium text-green-600 dark:text-green-400">
-					🏆 {goalMetCount} day{goalMetCount !== 1 ? 's' : ''} goal met
+					🏆 {goalMetCount} day{goalMetCount !== 1 ? 's' : ''} goal
+					met
 				</p>
 			)}
 
@@ -131,9 +132,11 @@ export default function GoalCalendar() {
 							))}
 
 							{/* Empty leading cells */}
-							{Array.from({ length: firstDayOfWeek }).map((_, i) => (
-								<div key={`e-${i}`} />
-							))}
+							{Array.from({ length: firstDayOfWeek }).map(
+								(_, i) => (
+									<div key={`e-${i}`} />
+								),
+							)}
 
 							{/* Day cells */}
 							{Array.from({ length: daysInMonth }).map((_, i) => {
@@ -153,7 +156,9 @@ export default function GoalCalendar() {
 										<button
 											onClick={() =>
 												!isFuture &&
-												router.push(`/history/${dateStr}`)
+												router.push(
+													`/history/${dateStr}`,
+												)
 											}
 											disabled={isFuture}
 											className={`
@@ -175,18 +180,22 @@ export default function GoalCalendar() {
 											{metGoal && (
 												<Droplets className="absolute -right-0.5 -top-0.5 h-2 w-2 text-green-300" />
 											)}
-											{hasData && !metGoal && !isFuture && (
-												<span className="absolute bottom-0.5 h-0.5 w-2.5 rounded-full bg-brand-400/60 dark:bg-brand-500/60" />
-											)}
+											{hasData &&
+												!metGoal &&
+												!isFuture && (
+													<span className="absolute bottom-0.5 h-0.5 w-2.5 rounded-full bg-brand-400/60 dark:bg-brand-500/60" />
+												)}
 										</button>
 									</div>
 								)
 							})}
 
 							{/* Trailing empty cells to fill 6 rows */}
-							{Array.from({ length: trailingCells }).map((_, i) => (
-								<div key={`t-${i}`} />
-							))}
+							{Array.from({ length: trailingCells }).map(
+								(_, i) => (
+									<div key={`t-${i}`} />
+								),
+							)}
 						</motion.div>
 					</AnimatePresence>
 				)}

@@ -2,7 +2,7 @@
 
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card } from '@/components/ui'
-import { HistoryChart, GoalCalendar } from '@/components/water'
+import { HistoryChart, GoalCalendar, StatsPanel } from '@/components/water'
 import { useWaterHistory, useUser } from '@/hooks'
 
 export default function HistoryPage() {
@@ -16,7 +16,7 @@ export default function HistoryPage() {
 			<Navbar />
 			<main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
 				<h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-					7-Day History
+					History
 				</h1>
 
 				{isLoading ? (
@@ -31,6 +31,11 @@ export default function HistoryPage() {
 						/>
 					</Card>
 				)}
+
+				{/* Aggregate stats */}
+				<Card>
+					<StatsPanel />
+				</Card>
 
 				{/* Monthly goal calendar */}
 				<Card>

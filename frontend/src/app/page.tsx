@@ -7,6 +7,7 @@ import {
 	QuickAddButtons,
 	ManualEntry,
 	EntryList,
+	StreakCard,
 } from '@/components/water'
 import { useWaterToday, useUser } from '@/hooks'
 
@@ -33,6 +34,14 @@ export default function DashboardPage() {
 								goal={user?.dailyGoal ?? 2000}
 								unit={user?.unit}
 							/>
+						</Card>
+
+						{/* Streak & badges */}
+						<Card>
+							<h2 className="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400">
+								Streaks & Badges
+							</h2>
+							<StreakCard />
 						</Card>
 
 						{/* Quick-add buttons */}

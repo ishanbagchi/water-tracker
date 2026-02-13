@@ -7,6 +7,13 @@ export {
 	useLogWater,
 	useLogWaterForDate,
 	useDeleteWaterEntry,
+	useStreaks,
+	useStats,
 	waterKeys,
 } from './use-water'
-export { useUser, useUpdateSettings, useChangePassword, userKeys } from './use-user'
+export {
+	useUser,
+	useUpdateSettings,
+	useChangePassword,
+	userKeys,
+} from './use-user'

@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/api-client'
-import type { ApiResponse, TodayData, HistoryDay, MonthData, StreaksData, StatsData } from '@/types'
+import type {
+	ApiResponse,
+	TodayData,
+	HistoryDay,
+	MonthData,
+	StreaksData,
+	StatsData,
+} from '@/types'
 
 // ── Query Keys (centralised for cache invalidation) ──
 export const waterKeys = {

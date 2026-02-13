@@ -36,9 +36,7 @@ export default function StreakCard() {
 					<span className="text-xl font-bold text-gray-900 dark:text-white">
 						{currentStreak}
 					</span>
-					<span className="text-[11px] text-gray-500">
-						Current
-					</span>
+					<span className="text-[11px] text-gray-500">Current</span>
 				</motion.div>
 
 				<motion.div
@@ -51,9 +49,7 @@ export default function StreakCard() {
 					<span className="text-xl font-bold text-gray-900 dark:text-white">
 						{longestStreak}
 					</span>
-					<span className="text-[11px] text-gray-500">
-						Best
-					</span>
+					<span className="text-[11px] text-gray-500">Best</span>
 				</motion.div>
 
 				<motion.div
@@ -66,9 +62,7 @@ export default function StreakCard() {
 					<span className="text-xl font-bold text-gray-900 dark:text-white">
 						{totalGoalDays}
 					</span>
-					<span className="text-[11px] text-gray-500">
-						Goals met
-					</span>
+					<span className="text-[11px] text-gray-500">Goals met</span>
 				</motion.div>
 			</div>
 

@@ -319,10 +319,7 @@ export class WaterService {
 	 * Get aggregate stats: total logged, average daily, best day,
 	 * goal-hit rate, and per-day breakdown for the requested period.
 	 */
-	async getStats(
-		userId: string,
-		period: 'week' | 'month' | 'all' = 'week',
-	) {
+	async getStats(userId: string, period: 'week' | 'month' | 'all' = 'week') {
 		const user = await this.userService.findById(userId)
 		const goal = (user as any).dailyGoal ?? 2000
 		const objectId = new Types.ObjectId(userId)
@@ -373,8 +370,10 @@ export class WaterService {
 		const daysTracked = aggregation.length
 		const averageDaily = Math.round(totalLogged / daysTracked)
 		const bestDay = aggregation.reduce(
-			(best: { _id: string; total: number }, d: { _id: string; total: number }) =>
-				d.total > best.total ? d : best,
+			(
+				best: { _id: string; total: number },
+				d: { _id: string; total: number },
+			) => (d.total > best.total ? d : best),
 			aggregation[0],
 		)
 		const daysGoalMet = aggregation.filter(

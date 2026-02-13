@@ -49,9 +49,10 @@ export default function StatsPanel() {
 					icon: Award,
 					label: 'Best Day',
 					value: `${formatAmount(stats.bestDay.total, unit)}`,
-					subtitle: stats.bestDay.total > 0
-						? formatDateLabel(stats.bestDay.date)
-						: undefined,
+					subtitle:
+						stats.bestDay.total > 0
+							? formatDateLabel(stats.bestDay.date)
+							: undefined,
 					color: 'text-amber-500',
 				},
 				{
@@ -73,7 +74,7 @@ export default function StatsPanel() {
 					value: `${stats.daysTracked}`,
 					color: 'text-purple-500',
 				},
-		  ]
+			]
 		: []
 
 	return (

@@ -17,7 +17,7 @@ export function useUser() {
 	})
 }
 
-/** PATCH /user/settings – update daily goal or unit. */
+/** PATCH /user/settings – update daily goal, unit, or quick-add amounts. */
 export function useUpdateSettings() {
 	const queryClient = useQueryClient()
 
@@ -25,6 +25,9 @@ export function useUpdateSettings() {
 		mutationFn: async (body: {
 			dailyGoal?: number
 			unit?: 'ml' | 'oz'
+			quickAddAmounts?: number[]
+			dayResetHour?: number
+			timezone?: string
 		}) => {
 			const { data } = await apiClient.patch<ApiResponse<User>>(
 				'/user/settings',
@@ -34,6 +37,22 @@ export function useUpdateSettings() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: userKeys.me })
+		},
+	})
+}
+
+/** PATCH /user/password – change the user's password. */
+export function useChangePassword() {
+	return useMutation({
+		mutationFn: async (body: {
+			currentPassword: string
+			newPassword: string
+		}) => {
+			const { data } = await apiClient.patch<ApiResponse>(
+				'/user/password',
+				body,
+			)
+			return data
 		},
 	})
 }

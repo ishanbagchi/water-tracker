@@ -43,6 +43,46 @@ export class WaterController {
 		return { success: true, data }
 	}
 
+	@Get('month/:year/:month')
+	async getMonthHistory(
+		@Req() req: Request,
+		@Param('year') year: string,
+		@Param('month') month: string,
+	): Promise<ApiResponse> {
+		const data = await this.waterService.getMonthHistory(
+			(req as any).user.sub,
+			parseInt(year, 10),
+			parseInt(month, 10),
+		)
+		return { success: true, data }
+	}
+
+	@Get('day/:date')
+	async getByDate(
+		@Req() req: Request,
+		@Param('date') date: string,
+	): Promise<ApiResponse> {
+		const data = await this.waterService.getByDate(
+			(req as any).user.sub,
+			date,
+		)
+		return { success: true, data }
+	}
+
+	@Post('log/:date')
+	async logWaterForDate(
+		@Req() req: Request,
+		@Param('date') date: string,
+		@Body() dto: LogWaterDto,
+	): Promise<ApiResponse> {
+		const entry = await this.waterService.logWaterForDate(
+			(req as any).user.sub,
+			date,
+			dto,
+		)
+		return { success: true, data: entry, message: 'Water logged' }
+	}
+
 	@Delete(':id')
 	async deleteEntry(
 		@Req() req: Request,

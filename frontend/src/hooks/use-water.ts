@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '@/lib/api-client'
-import type { ApiResponse, TodayData, HistoryDay } from '@/types'
+import type { ApiResponse, TodayData, HistoryDay, MonthData } from '@/types'
 
 // ── Query Keys (centralised for cache invalidation) ──
 export const waterKeys = {
 	today: ['water', 'today'] as const,
 	history: ['water', 'history'] as const,
+	day: (date: string) => ['water', 'day', date] as const,
+	month: (year: number, month: number) =>
+		['water', 'month', year, month] as const,
 }
 
 /** GET /water/today – today's total + entries list. */
@@ -28,6 +31,19 @@ export function useWaterHistory() {
 		queryFn: async () => {
 			const { data } =
 				await apiClient.get<ApiResponse<HistoryDay[]>>('/water/history')
+			return data.data
+		},
+	})
+}
+
+/** GET /water/month/:year/:month – daily totals for an entire month. */
+export function useWaterMonth(year: number, month: number) {
+	return useQuery({
+		queryKey: waterKeys.month(year, month),
+		queryFn: async () => {
+			const { data } = await apiClient.get<ApiResponse<MonthData>>(
+				`/water/month/${year}/${month}`,
+			)
 			return data.data
 		},
 	})
@@ -85,6 +101,42 @@ export function useDeleteWaterEntry() {
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: waterKeys.today })
 			queryClient.invalidateQueries({ queryKey: waterKeys.history })
+			// Invalidate all day-specific queries too
+			queryClient.invalidateQueries({ queryKey: ['water', 'day'] })
+		},
+	})
+}
+
+/** GET /water/day/:date – entries and total for a specific date. */
+export function useWaterByDate(date: string) {
+	return useQuery({
+		queryKey: waterKeys.day(date),
+		queryFn: async () => {
+			const { data } = await apiClient.get<ApiResponse<TodayData>>(
+				`/water/day/${date}`,
+			)
+			return data.data
+		},
+		enabled: !!date,
+	})
+}
+
+/** POST /water/log/:date – log water for a specific (possibly past) date. */
+export function useLogWaterForDate(date: string) {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: async (amount: number) => {
+			const { data } = await apiClient.post<ApiResponse>(
+				`/water/log/${date}`,
+				{ amount },
+			)
+			return data.data
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: waterKeys.day(date) })
+			queryClient.invalidateQueries({ queryKey: waterKeys.history })
+			queryClient.invalidateQueries({ queryKey: waterKeys.today })
 		},
 	})
 }

@@ -45,6 +45,15 @@ export class AuthService {
 		return this.buildAuthResponse(user.id, user.email)
 	}
 
+	/** Handle Google OAuth login/registration. */
+	async googleLogin(googleId: string, email: string) {
+		const user = await this.userService.findOrCreateGoogleUser(
+			googleId,
+			email,
+		)
+		return this.buildAuthResponse(user.id, user.email)
+	}
+
 	/** Helper: create the JWT payload and sign it. */
 	private buildAuthResponse(userId: string, email: string) {
 		const payload = { sub: userId, email }

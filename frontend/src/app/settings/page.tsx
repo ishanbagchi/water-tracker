@@ -1,31 +1,110 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { LogOut } from 'lucide-react'
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card, Button, Input } from '@/components/ui'
-import { useUser, useUpdateSettings } from '@/hooks'
+import { useUser, useUpdateSettings, useChangePassword, useLogout } from '@/hooks'
 
 export default function SettingsPage() {
 	const { data: user, isLoading } = useUser()
 	const updateSettings = useUpdateSettings()
+	const changePassword = useChangePassword()
+	const logout = useLogout()
 
 	const [dailyGoal, setDailyGoal] = useState('')
 	const [unit, setUnit] = useState<'ml' | 'oz'>('ml')
+	const [quickAddAmounts, setQuickAddAmounts] = useState<string[]>([
+		'250',
+		'500',
+		'750',
+	])
+	const [dayResetHour, setDayResetHour] = useState(0)
+	const [timezone, setTimezone] = useState(
+		() => Intl.DateTimeFormat().resolvedOptions().timeZone,
+	)
+
+	// Password change state
+	const [currentPassword, setCurrentPassword] = useState('')
+	const [newPassword, setNewPassword] = useState('')
+	const [confirmNewPassword, setConfirmNewPassword] = useState('')
+	const [passwordError, setPasswordError] = useState('')
 
 	// Sync form state when user data loads
 	useEffect(() => {
 		if (user) {
 			setDailyGoal(String(user.dailyGoal))
 			setUnit(user.unit)
+			setQuickAddAmounts(user.quickAddAmounts.map(String))
+			setDayResetHour(user.dayResetHour ?? 0)
+			setTimezone(
+				user.timezone && user.timezone !== 'UTC'
+					? user.timezone
+					: Intl.DateTimeFormat().resolvedOptions().timeZone,
+			)
 		}
 	}, [user])
 
 	const handleSave = (e: React.FormEvent) => {
 		e.preventDefault()
 		const parsed = parseInt(dailyGoal, 10)
-		if (parsed > 0) {
-			updateSettings.mutate({ dailyGoal: parsed, unit })
+		const parsedAmounts = quickAddAmounts
+			.map((a) => parseInt(a, 10))
+			.filter((a) => a > 0)
+
+		if (parsed > 0 && parsedAmounts.length > 0) {
+			updateSettings.mutate({
+				dailyGoal: parsed,
+				unit,
+				quickAddAmounts: parsedAmounts,
+				dayResetHour,
+				timezone,
+			})
 		}
+	}
+
+	const handleChangePassword = (e: React.FormEvent) => {
+		e.preventDefault()
+		setPasswordError('')
+
+		if (newPassword !== confirmNewPassword) {
+			setPasswordError('New passwords do not match')
+			return
+		}
+
+		changePassword.mutate(
+			{ currentPassword, newPassword },
+			{
+				onSuccess: () => {
+					setCurrentPassword('')
+					setNewPassword('')
+					setConfirmNewPassword('')
+				},
+				onError: (err: any) => {
+					setPasswordError(
+						err?.response?.data?.message || 'Failed to change password',
+					)
+				},
+			},
+		)
+	}
+
+	const addQuickAddSlot = () => {
+		if (quickAddAmounts.length < 5) {
+			setQuickAddAmounts([...quickAddAmounts, ''])
+		}
+	}
+
+	const removeQuickAddSlot = (index: number) => {
+		if (quickAddAmounts.length > 1) {
+			setQuickAddAmounts(quickAddAmounts.filter((_, i) => i !== index))
+		}
+	}
+
+	const updateQuickAddAmount = (index: number, value: string) => {
+		const newAmounts = [...quickAddAmounts]
+		newAmounts[index] = value
+		setQuickAddAmounts(newAmounts)
 	}
 
 	return (
@@ -41,64 +120,247 @@ export default function SettingsPage() {
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
 					</div>
 				) : (
-					<Card>
-						<form onSubmit={handleSave} className="space-y-5">
-							{/* Daily Goal */}
-							<Input
-								label="Daily Hydration Goal (ml)"
-								type="number"
-								min={1}
-								value={dailyGoal}
-								onChange={(e) => setDailyGoal(e.target.value)}
-							/>
+					<>
+						<Card>
+							<form onSubmit={handleSave} className="space-y-5">
+								{/* Daily Goal */}
+								<Input
+									label="Daily Hydration Goal (ml)"
+									type="number"
+									min={1}
+									value={dailyGoal}
+									onChange={(e) => setDailyGoal(e.target.value)}
+								/>
 
-							{/* Unit toggle */}
-							<div>
-								<label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-									Display Unit
-								</label>
-								<div className="flex gap-2">
-									{(['ml', 'oz'] as const).map((u) => (
-										<button
-											key={u}
-											type="button"
-											onClick={() => setUnit(u)}
-											className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${
-												unit === u
-													? 'bg-brand-600 text-white'
-													: 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
-											}`}
-										>
-											{u.toUpperCase()}
-										</button>
-									))}
+								{/* Unit toggle */}
+								<div>
+									<label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+										Display Unit
+									</label>
+									<div className="flex gap-2">
+										{(['ml', 'oz'] as const).map((u) => (
+											<button
+												key={u}
+												type="button"
+												onClick={() => setUnit(u)}
+												className={`rounded-xl px-5 py-2 text-sm font-medium transition-colors ${
+													unit === u
+														? 'bg-brand-600 text-white'
+														: 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
+												}`}
+											>
+												{u.toUpperCase()}
+											</button>
+										))}
+									</div>
 								</div>
-							</div>
 
-							{/* Account info */}
-							<div className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-								Signed in as{' '}
-								<strong className="text-gray-700 dark:text-gray-200">
-									{user?.email}
-								</strong>
-							</div>
+								{/* Quick-add amounts */}
+								<div>
+									<div className="mb-2 flex items-center justify-between">
+										<label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+											Quick-Add Amounts (ml)
+										</label>
+										{quickAddAmounts.length < 5 && (
+											<button
+												type="button"
+												onClick={addQuickAddSlot}
+												className="text-xs text-brand-600 hover:text-brand-700"
+											>
+												+ Add Slot
+											</button>
+										)}
+									</div>
+									<div className="space-y-2">
+										{quickAddAmounts.map((amount, index) => (
+											<div key={index} className="flex gap-2">
+												<Input
+													type="number"
+													min={1}
+													placeholder="e.g. 250"
+													value={amount}
+													onChange={(e) =>
+														updateQuickAddAmount(
+															index,
+															e.target.value,
+														)
+													}
+													className="flex-1"
+												/>
+												{quickAddAmounts.length > 1 && (
+													<button
+														type="button"
+														onClick={() =>
+															removeQuickAddSlot(
+																index,
+															)
+														}
+														className="rounded-lg px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+													>
+														✕
+													</button>
+												)}
+											</div>
+										))}
+									</div>
+									<p className="mt-1 text-xs text-gray-400">
+										Customize your quick-add buttons (1-5
+										amounts)
+									</p>
+								</div>
 
-							{/* Save */}
-							<Button
-								type="submit"
-								isLoading={updateSettings.isPending}
-								className="w-full"
+								{/* Day reset time */}
+								<div>
+									<label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+										Day Reset Time
+									</label>
+									<p className="mb-2 text-xs text-gray-400">
+										When should a new day start? Entries logged
+										before this hour count towards the previous
+										day.
+									</p>
+									<div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+										{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(
+											(h) => {
+												const label =
+													h === 0
+														? '12 AM'
+														: h < 12
+															? `${h} AM`
+															: `${h - 12 || 12} PM`
+												return (
+													<button
+														key={h}
+														type="button"
+														onClick={() =>
+															setDayResetHour(h)
+														}
+														className={`rounded-xl px-2 py-2 text-xs font-medium transition-colors ${
+															dayResetHour === h
+																? 'bg-brand-600 text-white'
+																: 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+														}`}
+													>
+														{label}
+													</button>
+												)
+											},
+										)}
+									</div>
+								</div>
+
+								{/* Timezone */}
+								<div>
+									<label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+										Timezone
+									</label>
+									<div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+										{timezone}
+									</div>
+									<p className="mt-1 text-xs text-gray-400">
+										Auto-detected from your browser. Day
+										boundaries and reset time are based on
+										this timezone.
+									</p>
+								</div>
+
+								{/* Account info */}
+								<div className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+									Signed in as{' '}
+									<strong className="text-gray-700 dark:text-gray-200">
+										{user?.email}
+									</strong>
+								</div>
+
+								{/* Save */}
+								<Button
+									type="submit"
+									isLoading={updateSettings.isPending}
+									className="w-full"
+								>
+									Save Settings
+								</Button>
+
+								{updateSettings.isSuccess && (
+									<p className="text-center text-sm text-green-600">
+										✓ Settings saved!
+									</p>
+								)}
+							</form>
+						</Card>
+
+						{/* Change Password */}
+						{!user?.googleId && (
+							<Card>
+								<h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+									Change Password
+								</h2>
+								<form onSubmit={handleChangePassword} className="space-y-4">
+									<Input
+										label="Current Password"
+										type="password"
+										placeholder="••••••••"
+										value={currentPassword}
+										onChange={(e) => setCurrentPassword(e.target.value)}
+										required
+										autoComplete="current-password"
+									/>
+									<Input
+										label="New Password"
+										type="password"
+										placeholder="At least 6 characters"
+										value={newPassword}
+										onChange={(e) => setNewPassword(e.target.value)}
+										required
+										minLength={6}
+										autoComplete="new-password"
+									/>
+									<Input
+										label="Confirm New Password"
+										type="password"
+										placeholder="••••••••"
+										value={confirmNewPassword}
+										onChange={(e) =>
+											setConfirmNewPassword(e.target.value)
+										}
+										required
+										autoComplete="new-password"
+									/>
+
+									{(passwordError || changePassword.isError) && (
+										<p className="text-sm text-red-500">
+											{passwordError || 'Failed to change password'}
+										</p>
+									)}
+
+									{changePassword.isSuccess && (
+										<p className="text-sm text-green-600">
+											✓ Password changed successfully!
+										</p>
+									)}
+
+									<Button
+										type="submit"
+										isLoading={changePassword.isPending}
+										className="w-full"
+									>
+										Change Password
+									</Button>
+								</form>
+							</Card>
+						)}
+
+						{/* Logout */}
+						<Card>
+							<button
+								onClick={logout}
+								className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
 							>
-								Save Settings
-							</Button>
-
-							{updateSettings.isSuccess && (
-								<p className="text-center text-sm text-green-600">
-									✓ Settings saved!
-								</p>
-							)}
-						</form>
-					</Card>
+								<LogOut className="h-4 w-4" />
+								Log Out
+							</button>
+						</Card>
+					</>
 				)}
 			</main>
 		</AuthGuard>

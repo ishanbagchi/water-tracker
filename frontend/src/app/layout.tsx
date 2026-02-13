@@ -6,6 +6,9 @@ export const metadata: Metadata = {
 	title: 'HydroTrack – Stay Hydrated',
 	description:
 		'Minimalist water intake tracker to build healthy hydration habits.',
+	icons: {
+		icon: '/favicon.svg',
+	},
 }
 
 export default function RootLayout({

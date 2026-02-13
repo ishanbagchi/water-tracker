@@ -13,6 +13,10 @@ export interface User {
 	email: string
 	dailyGoal: number
 	unit: 'ml' | 'oz'
+	quickAddAmounts: number[]
+	dayResetHour: number
+	timezone: string
+	googleId?: string
 	createdAt: string
 }
 
@@ -36,6 +40,13 @@ export interface TodayData {
 export interface HistoryDay {
 	date: string
 	total: number
+}
+
+/** Response from GET /water/month/:year/:month */
+export interface MonthData {
+	year: number
+	month: number
+	days: HistoryDay[]
 }
 
 /** Auth response from POST /auth/login & /auth/register */

@@ -2,7 +2,7 @@
 
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card } from '@/components/ui'
-import { HistoryChart } from '@/components/water'
+import { HistoryChart, GoalCalendar } from '@/components/water'
 import { useWaterHistory, useUser } from '@/hooks'
 
 export default function HistoryPage() {
@@ -32,36 +32,10 @@ export default function HistoryPage() {
 					</Card>
 				)}
 
-				{/* Per-day detail list */}
-				{!isLoading && history && (
-					<Card>
-						<h2 className="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400">
-							Daily Breakdown
-						</h2>
-						<ul className="divide-y divide-gray-100 dark:divide-gray-800">
-							{history.map((day) => (
-								<li
-									key={day.date}
-									className="flex items-center justify-between py-3"
-								>
-									<span className="text-sm text-gray-600 dark:text-gray-400">
-										{day.date}
-									</span>
-									<span
-										className={`text-sm font-semibold ${
-											day.total >=
-											(user?.dailyGoal ?? 2000)
-												? 'text-green-600 dark:text-green-400'
-												: 'text-gray-900 dark:text-white'
-										}`}
-									>
-										{day.total} ml
-									</span>
-								</li>
-							))}
-						</ul>
-					</Card>
-				)}
+				{/* Monthly goal calendar */}
+				<Card>
+					<GoalCalendar />
+				</Card>
 			</main>
 		</AuthGuard>
 	)

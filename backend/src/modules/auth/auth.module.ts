@@ -4,8 +4,19 @@ import { PassportModule } from '@nestjs/passport'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
-import { JwtStrategy } from './strategies'
+import { JwtStrategy, GoogleStrategy } from './strategies'
 import { UserModule } from '../user/user.module'
+
+/** Only register GoogleStrategy when credentials are configured. */
+const googleProvider = {
+	provide: GoogleStrategy,
+	useFactory: (config: ConfigService) => {
+		const clientID = config.get<string>('GOOGLE_CLIENT_ID')
+		if (!clientID) return null // skip if not configured
+		return new GoogleStrategy(config)
+	},
+	inject: [ConfigService],
+}
 
 @Module({
 	imports: [
@@ -23,7 +34,7 @@ import { UserModule } from '../user/user.module'
 		}),
 	],
 	controllers: [AuthController],
-	providers: [AuthService, JwtStrategy],
+	providers: [AuthService, JwtStrategy, googleProvider],
 	exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

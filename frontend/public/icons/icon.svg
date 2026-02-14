@@ -1,0 +1,8 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded background -->
+  <rect width="512" height="512" rx="112" fill="#3b82f6"/>
+  <!-- Water droplet (centered, scaled up) -->
+  <path d="M256 96c0 0-120 132-120 204a120 120 0 00240 0C376 228 256 96 256 96Z" fill="white"/>
+  <!-- Highlight -->
+  <ellipse cx="214" cy="260" rx="36" ry="18" fill="white" opacity="0.35"/>
+</svg>

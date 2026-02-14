@@ -27,7 +27,7 @@
 
 ### Quick Wins
 
-- [ ] **PWA Support** — Add `manifest.json` + service worker for home screen install
+- [x] PWA support (installable, offline-capable service worker)
 - [ ] **Export Data** — Download history as CSV or JSON from settings
 - [ ] **Undo Last Entry** — Toast with undo action after logging water
 - [ ] **Entry Editing** — Edit an existing log's amount instead of delete + re-add

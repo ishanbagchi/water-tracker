@@ -1,16 +1,12 @@
 const CACHE_NAME = 'hydrotrack-v1'
 
 // App shell — static assets to pre-cache on install
-const APP_SHELL = [
-	'/',
-	'/manifest.json',
-	'/favicon.svg',
-]
+const APP_SHELL = ['/', '/manifest.json', '/favicon.svg']
 
 // ── Install: pre-cache app shell ──
 self.addEventListener('install', (event) => {
 	event.waitUntil(
-		caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+		caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
 	)
 	self.skipWaiting()
 })
@@ -18,13 +14,15 @@ self.addEventListener('install', (event) => {
 // ── Activate: clean old caches ──
 self.addEventListener('activate', (event) => {
 	event.waitUntil(
-		caches.keys().then((keys) =>
-			Promise.all(
-				keys
-					.filter((key) => key !== CACHE_NAME)
-					.map((key) => caches.delete(key))
-			)
-		)
+		caches
+			.keys()
+			.then((keys) =>
+				Promise.all(
+					keys
+						.filter((key) => key !== CACHE_NAME)
+						.map((key) => caches.delete(key)),
+				),
+			),
 	)
 	self.clients.claim()
 })
@@ -45,10 +43,12 @@ self.addEventListener('fetch', (event) => {
 			fetch(request)
 				.then((response) => {
 					const clone = response.clone()
-					caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
+					caches
+						.open(CACHE_NAME)
+						.then((cache) => cache.put(request, clone))
 					return response
 				})
-				.catch(() => caches.match(request))
+				.catch(() => caches.match(request)),
 		)
 		return
 	}
@@ -61,10 +61,12 @@ self.addEventListener('fetch', (event) => {
 				// Only cache same-origin successful responses
 				if (response.ok && url.origin === self.location.origin) {
 					const clone = response.clone()
-					caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
+					caches
+						.open(CACHE_NAME)
+						.then((cache) => cache.put(request, clone))
 				}
 				return response
 			})
-		})
+		}),
 	)
 })

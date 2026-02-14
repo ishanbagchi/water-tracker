@@ -14,9 +14,23 @@ export default function Navbar() {
 				{/* Brand */}
 				<Link href="/" className="flex items-center gap-2">
 					<Logo size={24} />
-					<span className="text-lg font-bold text-gray-900 dark:text-white">
-						HydroTrack
-					</span>
+					<div className="flex flex-col items-start sm:flex-row sm:items-baseline sm:gap-1.5">
+						<span className="text-lg font-bold leading-tight text-gray-900 dark:text-white">
+							HydroTrack
+						</span>
+						<span className="text-[11px] leading-tight text-gray-400">
+							by{' '}
+							<a
+								href="https://ishanbagchi.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="underline decoration-gray-300 underline-offset-2 transition-colors hover:text-brand-500 dark:decoration-gray-600"
+								onClick={(e) => e.stopPropagation()}
+							>
+								Ishan Bagchi
+							</a>
+						</span>
+					</div>
 				</Link>
 
 				{/* Nav links */}

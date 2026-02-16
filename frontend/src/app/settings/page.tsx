@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { LogOut } from 'lucide-react'
 import {
 	DndContext,
@@ -10,6 +10,8 @@ import {
 	useSensor,
 	useSensors,
 	DragEndEvent,
+	DragStartEvent,
+	DragOverlay,
 } from '@dnd-kit/core'
 import {
 	arrayMove,
@@ -55,7 +57,7 @@ function SortableItem({
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
-		transition,
+		transition: isDragging ? 'none' : transition,
 	}
 
 	const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +74,7 @@ function SortableItem({
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`flex gap-2 ${isDragging ? 'opacity-40' : ''}`}
+			className={`flex gap-2 ${isDragging ? 'opacity-0' : ''}`}
 		>
 			<button
 				type="button"
@@ -124,10 +126,15 @@ export default function SettingsPage() {
 
 	const [dailyGoal, setDailyGoal] = useState('')
 	const [unit, setUnit] = useState<'ml' | 'oz'>('ml')
-	const [quickAddAmounts, setQuickAddAmounts] = useState<string[]>([
-		'250',
-		'500',
-		'750',
+	const idCounter = useRef(0)
+	const makeItem = (value: string) => ({
+		id: `qa-${idCounter.current++}`,
+		value,
+	})
+	const [quickAddItems, setQuickAddItems] = useState(() => [
+		makeItem('250'),
+		makeItem('500'),
+		makeItem('750'),
 	])
 	const [dayResetHour, setDayResetHour] = useState(0)
 	const [timezone, setTimezone] = useState(
@@ -145,7 +152,9 @@ export default function SettingsPage() {
 		if (user) {
 			setDailyGoal(String(user.dailyGoal))
 			setUnit(user.unit)
-			setQuickAddAmounts(user.quickAddAmounts.map(String))
+			setQuickAddItems(
+				user.quickAddAmounts.map((a) => makeItem(String(a))),
+			)
 			setDayResetHour(user.dayResetHour ?? 0)
 			setTimezone(
 				user.timezone && user.timezone !== 'UTC'
@@ -158,8 +167,8 @@ export default function SettingsPage() {
 	const handleSave = (e: React.FormEvent) => {
 		e.preventDefault()
 		const parsed = parseInt(dailyGoal, 10)
-		const parsedAmounts = quickAddAmounts
-			.map((a) => parseInt(a, 10))
+		const parsedAmounts = quickAddItems
+			.map((item) => parseInt(item.value, 10))
 			.filter((a) => a > 0)
 
 		if (parsed > 0 && parsedAmounts.length > 0) {
@@ -201,21 +210,23 @@ export default function SettingsPage() {
 	}
 
 	const addQuickAddSlot = () => {
-		if (quickAddAmounts.length < 5) {
-			setQuickAddAmounts([...quickAddAmounts, ''])
+		if (quickAddItems.length < 5) {
+			setQuickAddItems([...quickAddItems, makeItem('')])
 		}
 	}
 
-	const removeQuickAddSlot = (index: number) => {
-		if (quickAddAmounts.length > 1) {
-			setQuickAddAmounts(quickAddAmounts.filter((_, i) => i !== index))
+	const removeQuickAddSlot = (id: string) => {
+		if (quickAddItems.length > 1) {
+			setQuickAddItems(quickAddItems.filter((item) => item.id !== id))
 		}
 	}
 
-	const updateQuickAddAmount = (index: number, value: string) => {
-		const newAmounts = [...quickAddAmounts]
-		newAmounts[index] = value
-		setQuickAddAmounts(newAmounts)
+	const updateQuickAddAmount = (id: string, value: string) => {
+		setQuickAddItems(
+			quickAddItems.map((item) =>
+				item.id === id ? { ...item, value } : item,
+			),
+		)
 	}
 
 	const sensors = useSensors(
@@ -225,14 +236,25 @@ export default function SettingsPage() {
 		}),
 	)
 
+	const [activeId, setActiveId] = useState<string | null>(null)
+
+	const handleDragStart = (event: DragStartEvent) => {
+		setActiveId(String(event.active.id))
+	}
+
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event
 
 		if (over && active.id !== over.id) {
-			const oldIndex = Number(active.id)
-			const newIndex = Number(over.id)
-			setQuickAddAmounts(arrayMove(quickAddAmounts, oldIndex, newIndex))
+			const oldIndex = quickAddItems.findIndex(
+				(item) => item.id === active.id,
+			)
+			const newIndex = quickAddItems.findIndex(
+				(item) => item.id === over.id,
+			)
+			setQuickAddItems(arrayMove(quickAddItems, oldIndex, newIndex))
 		}
+		setActiveId(null)
 	}
 
 	return (
@@ -291,7 +313,7 @@ export default function SettingsPage() {
 										<label className="text-sm font-medium text-gray-700 dark:text-gray-300">
 											Quick-Add Amounts (ml)
 										</label>
-										{quickAddAmounts.length < 5 && (
+										{quickAddItems.length < 5 && (
 											<button
 												type="button"
 												onClick={addQuickAddSlot}
@@ -305,43 +327,95 @@ export default function SettingsPage() {
 										sensors={sensors}
 										modifiers={[restrictToVerticalAxis]}
 										collisionDetection={closestCenter}
+										onDragStart={handleDragStart}
 										onDragEnd={handleDragEnd}
 									>
 										<SortableContext
-											items={quickAddAmounts.map((_, i) =>
-												String(i),
+											items={quickAddItems.map(
+												(item) => item.id,
 											)}
 											strategy={
 												verticalListSortingStrategy
 											}
 										>
 											<div className="space-y-2">
-												{quickAddAmounts.map(
-													(amount, index) => (
-														<SortableItem
-															key={index}
-															id={String(index)}
-															value={amount}
-															canDelete={
-																quickAddAmounts.length >
-																1
-															}
-															onChange={(val) =>
-																updateQuickAddAmount(
-																	index,
-																	val,
-																)
-															}
-															onDelete={() =>
-																removeQuickAddSlot(
-																	index,
-																)
-															}
-														/>
-													),
-												)}
+												{quickAddItems.map((item) => (
+													<SortableItem
+														key={item.id}
+														id={item.id}
+														value={item.value}
+														canDelete={
+															quickAddItems.length >
+															1
+														}
+														onChange={(val) =>
+															updateQuickAddAmount(
+																item.id,
+																val,
+															)
+														}
+														onDelete={() =>
+															removeQuickAddSlot(
+																item.id,
+															)
+														}
+													/>
+												))}
 											</div>
 										</SortableContext>
+										<DragOverlay>
+											{activeId !== null
+												? (() => {
+														const activeItem =
+															quickAddItems.find(
+																(item) =>
+																	item.id ===
+																	activeId,
+															)
+														const canDelete =
+															quickAddItems.length >
+															1
+														return (
+															<div className="flex gap-2 rounded-lg bg-white p-1 shadow-lg ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
+																<div className="flex cursor-grab items-center rounded-lg px-2 text-gray-400">
+																	<svg
+																		className="h-4 w-4"
+																		fill="none"
+																		viewBox="0 0 24 24"
+																		stroke="currentColor"
+																	>
+																		<path
+																			strokeLinecap="round"
+																			strokeLinejoin="round"
+																			strokeWidth={
+																				2
+																			}
+																			d="M4 8h16M4 16h16"
+																		/>
+																	</svg>
+																</div>
+																<Input
+																	type="number"
+																	value={
+																		activeItem?.value ??
+																		''
+																	}
+																	readOnly
+																	className="flex-1"
+																/>
+																{canDelete && (
+																	<button
+																		type="button"
+																		className="rounded-lg px-3 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950 font-bold"
+																	>
+																		✕
+																	</button>
+																)}
+															</div>
+														)
+													})()
+												: null}
+										</DragOverlay>
 									</DndContext>
 									<p className="mt-1 text-xs text-gray-400">
 										Customize your quick-add buttons (1-5

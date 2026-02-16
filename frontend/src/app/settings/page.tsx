@@ -57,6 +57,16 @@ function SortableItem({
 		transition,
 	}
 
+	const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.value
+		if (
+			newValue === '' ||
+			(Number(newValue) >= 1 && Number(newValue) <= 10_000)
+		) {
+			onChange(newValue)
+		}
+	}
+
 	return (
 		<div
 			ref={setNodeRef}
@@ -86,9 +96,10 @@ function SortableItem({
 			<Input
 				type="number"
 				min={1}
+				max={10_000}
 				placeholder="e.g. 250"
 				value={value}
-				onChange={(e) => onChange(e.target.value)}
+				onChange={handleOnChange}
 				className="flex-1"
 			/>
 			{canDelete && (
@@ -217,8 +228,8 @@ export default function SettingsPage() {
 		const { active, over } = event
 
 		if (over && active.id !== over.id) {
-			const oldIndex = quickAddAmounts.indexOf(active.id as string)
-			const newIndex = quickAddAmounts.indexOf(over.id as string)
+			const oldIndex = Number(active.id)
+			const newIndex = Number(over.id)
 			setQuickAddAmounts(arrayMove(quickAddAmounts, oldIndex, newIndex))
 		}
 	}
@@ -295,7 +306,9 @@ export default function SettingsPage() {
 										onDragEnd={handleDragEnd}
 									>
 										<SortableContext
-											items={quickAddAmounts}
+											items={quickAddAmounts.map((_, i) =>
+												String(i),
+											)}
 											strategy={
 												verticalListSortingStrategy
 											}
@@ -304,8 +317,8 @@ export default function SettingsPage() {
 												{quickAddAmounts.map(
 													(amount, index) => (
 														<SortableItem
-															key={amount}
-															id={amount}
+															key={index}
+															id={String(index)}
 															value={amount}
 															canDelete={
 																quickAddAmounts.length >

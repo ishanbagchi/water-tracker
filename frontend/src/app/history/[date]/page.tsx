@@ -46,6 +46,13 @@ export default function DayDetailPage() {
 	const progressPct = Math.min((total / goal) * 100, 100)
 	const metGoal = total >= goal
 
+	const handleOnCustomValueChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const newValue = e.target.value
+		if (Number(newValue) <= 10_000) setCustomAmount(newValue)
+	}
+
 	const handleCustomSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
 		const parsed = parseInt(customAmount, 10)
@@ -167,9 +174,7 @@ export default function DayDetailPage() {
 										min={1}
 										placeholder="e.g. 350"
 										value={customAmount}
-										onChange={(e) =>
-											setCustomAmount(e.target.value)
-										}
+										onChange={handleOnCustomValueChange}
 									/>
 								</div>
 								<Button

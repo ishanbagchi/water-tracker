@@ -12,6 +12,11 @@ export default function ManualEntry() {
 	const [amount, setAmount] = useState('')
 	const logWater = useLogWater()
 
+	const handleOnAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.value
+		if (Number(newValue) <= 10_000) setAmount(newValue)
+	}
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
 		const parsed = parseInt(amount, 10)
@@ -28,9 +33,10 @@ export default function ManualEntry() {
 					label="Custom amount (ml)"
 					type="number"
 					min={1}
+					max={10000}
 					placeholder="e.g. 350"
 					value={amount}
-					onChange={(e) => setAmount(e.target.value)}
+					onChange={handleOnAmountChange}
 				/>
 			</div>
 			<Button

@@ -19,6 +19,7 @@ import {
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card, Button, Input } from '@/components/ui'
 import {
@@ -71,7 +72,7 @@ function SortableItem({
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`flex gap-2 ${isDragging ? 'z-50' : ''}`}
+			className={`flex gap-2 ${isDragging ? 'opacity-40' : ''}`}
 		>
 			<button
 				type="button"
@@ -106,7 +107,7 @@ function SortableItem({
 				<button
 					type="button"
 					onClick={onDelete}
-					className="rounded-lg px-3 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950"
+					className="rounded-lg px-3 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950 font-bold"
 				>
 					✕
 				</button>
@@ -302,6 +303,7 @@ export default function SettingsPage() {
 									</div>
 									<DndContext
 										sensors={sensors}
+										modifiers={[restrictToVerticalAxis]}
 										collisionDetection={closestCenter}
 										onDragEnd={handleDragEnd}
 									>

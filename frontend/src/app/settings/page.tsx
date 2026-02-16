@@ -2,6 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { LogOut } from 'lucide-react'
+import {
+	DndContext,
+	closestCenter,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+	DragEndEvent,
+} from '@dnd-kit/core'
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	useSortable,
+	verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card, Button, Input } from '@/components/ui'
 import {
@@ -10,6 +27,82 @@ import {
 	useChangePassword,
 	useLogout,
 } from '@/hooks'
+
+interface SortableItemProps {
+	id: string
+	value: string
+	canDelete: boolean
+	onChange: (value: string) => void
+	onDelete: () => void
+}
+
+function SortableItem({
+	id,
+	value,
+	canDelete,
+	onChange,
+	onDelete,
+}: SortableItemProps) {
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id })
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+	}
+
+	return (
+		<div
+			ref={setNodeRef}
+			style={style}
+			className={`flex gap-2 ${isDragging ? 'z-50' : ''}`}
+		>
+			<button
+				type="button"
+				{...attributes}
+				{...listeners}
+				className="flex cursor-grab items-center rounded-lg px-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing dark:hover:bg-gray-800"
+			>
+				<svg
+					className="h-4 w-4"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M4 8h16M4 16h16"
+					/>
+				</svg>
+			</button>
+			<Input
+				type="number"
+				min={1}
+				placeholder="e.g. 250"
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				className="flex-1"
+			/>
+			{canDelete && (
+				<button
+					type="button"
+					onClick={onDelete}
+					className="rounded-lg px-3 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950"
+				>
+					✕
+				</button>
+			)}
+		</div>
+	)
+}
 
 export default function SettingsPage() {
 	const { data: user, isLoading } = useUser()
@@ -113,6 +206,23 @@ export default function SettingsPage() {
 		setQuickAddAmounts(newAmounts)
 	}
 
+	const sensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
+	)
+
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event
+
+		if (over && active.id !== over.id) {
+			const oldIndex = quickAddAmounts.indexOf(active.id as string)
+			const newIndex = quickAddAmounts.indexOf(over.id as string)
+			setQuickAddAmounts(arrayMove(quickAddAmounts, oldIndex, newIndex))
+		}
+	}
+
 	return (
 		<AuthGuard>
 			<Navbar />
@@ -179,44 +289,45 @@ export default function SettingsPage() {
 											</button>
 										)}
 									</div>
-									<div className="space-y-2">
-										{quickAddAmounts.map(
-											(amount, index) => (
-												<div
-													key={index}
-													className="flex gap-2"
-												>
-													<Input
-														type="number"
-														min={1}
-														placeholder="e.g. 250"
-														value={amount}
-														onChange={(e) =>
-															updateQuickAddAmount(
-																index,
-																e.target.value,
-															)
-														}
-														className="flex-1"
-													/>
-													{quickAddAmounts.length >
-														1 && (
-														<button
-															type="button"
-															onClick={() =>
+									<DndContext
+										sensors={sensors}
+										collisionDetection={closestCenter}
+										onDragEnd={handleDragEnd}
+									>
+										<SortableContext
+											items={quickAddAmounts}
+											strategy={
+												verticalListSortingStrategy
+											}
+										>
+											<div className="space-y-2">
+												{quickAddAmounts.map(
+													(amount, index) => (
+														<SortableItem
+															key={amount}
+															id={amount}
+															value={amount}
+															canDelete={
+																quickAddAmounts.length >
+																1
+															}
+															onChange={(val) =>
+																updateQuickAddAmount(
+																	index,
+																	val,
+																)
+															}
+															onDelete={() =>
 																removeQuickAddSlot(
 																	index,
 																)
 															}
-															className="rounded-lg px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
-														>
-															✕
-														</button>
-													)}
-												</div>
-											),
-										)}
-									</div>
+														/>
+													),
+												)}
+											</div>
+										</SortableContext>
+									</DndContext>
 									<p className="mt-1 text-xs text-gray-400">
 										Customize your quick-add buttons (1-5
 										amounts)

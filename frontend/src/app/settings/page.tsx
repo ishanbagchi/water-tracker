@@ -7,6 +7,7 @@ import {
 	closestCenter,
 	KeyboardSensor,
 	PointerSensor,
+	TouchSensor,
 	useSensor,
 	useSensors,
 	DragEndEvent,
@@ -230,7 +231,12 @@ export default function SettingsPage() {
 	}
 
 	const sensors = useSensors(
-		useSensor(PointerSensor),
+		useSensor(PointerSensor, {
+			activationConstraint: { distance: 8 },
+		}),
+		useSensor(TouchSensor, {
+			activationConstraint: { delay: 200, tolerance: 6 },
+		}),
 		useSensor(KeyboardSensor, {
 			coordinateGetter: sortableKeyboardCoordinates,
 		}),

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hydrotrack-v1'
+const CACHE_NAME = 'hydrotrack-v1.1'
 
 // App shell — static assets to pre-cache on install
 const APP_SHELL = ['/', '/manifest.json', '/favicon.svg']

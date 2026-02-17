@@ -1,26 +1,28 @@
 'use client'
 
 import { Suspense, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { setToken, setUser } from '@/lib/auth'
+import { useRouter } from 'next/navigation'
+import apiClient from '@/lib/api-client'
+import { setUser } from '@/lib/auth'
 
 function GoogleCallbackContent() {
 	const router = useRouter()
-	const searchParams = useSearchParams()
 
 	useEffect(() => {
-		const token = searchParams.get('token')
-		const userId = searchParams.get('userId')
-		const email = searchParams.get('email')
-
-		if (token && userId && email) {
-			setToken(token)
-			setUser({ id: userId, email })
-			router.replace('/')
-		} else {
-			router.replace('/login')
-		}
-	}, [searchParams, router])
+		// Backend set httpOnly cookie. Fetch session user from /auth/me
+		apiClient
+			.get('/auth/me')
+			.then((res) => {
+				const user = res.data?.data
+				if (user) {
+					setUser(user)
+					router.replace('/')
+				} else {
+					router.replace('/login')
+				}
+			})
+			.catch(() => router.replace('/login'))
+	}, [router])
 
 	return (
 		<div className="flex min-h-screen items-center justify-center">

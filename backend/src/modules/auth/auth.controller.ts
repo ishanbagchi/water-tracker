@@ -12,7 +12,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { AuthService } from './auth.service'
 import { RegisterDto, LoginDto } from './dto'
-import { GoogleAuthGuard } from './guards'
+import { GoogleAuthGuard, JwtAuthGuard } from './guards'
 import { ApiResponse } from '../../common/interfaces'
 import { Request, Response } from 'express'
 
@@ -24,23 +24,45 @@ export class AuthController {
 	) {}
 
 	@Post('register')
-	async register(@Body() dto: RegisterDto): Promise<ApiResponse> {
+	async register(
+		@Body() dto: RegisterDto,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<ApiResponse> {
 		const data = await this.authService.register(dto)
-		return { success: true, data, message: 'Registration successful' }
+		const cookieOpts = {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax' as const,
+			maxAge: 7 * 24 * 60 * 60 * 1000,
+		}
+		res.cookie('ht_token', data.accessToken, cookieOpts)
+		return {
+			success: true,
+			data: data.user,
+			message: 'Registration successful',
+		}
 	}
 
 	@Post('login')
 	@HttpCode(HttpStatus.OK)
-	async login(@Body() dto: LoginDto): Promise<ApiResponse> {
+	async login(
+		@Body() dto: LoginDto,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<ApiResponse> {
 		const data = await this.authService.login(dto)
-		return { success: true, data, message: 'Login successful' }
+		const cookieOpts = {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax' as const,
+			maxAge: 7 * 24 * 60 * 60 * 1000,
+		}
+		res.cookie('ht_token', data.accessToken, cookieOpts)
+		return { success: true, data: data.user, message: 'Login successful' }
 	}
 
 	@Get('google')
 	@UseGuards(GoogleAuthGuard)
-	googleAuth() {
-		// Guard redirects to Google
-	}
+	googleAuth() {}
 
 	@Get('google/callback')
 	@UseGuards(GoogleAuthGuard)
@@ -54,8 +76,31 @@ export class AuthController {
 			'FRONTEND_URL',
 			'http://localhost:3000',
 		)
-		res.redirect(
-			`${frontendUrl}/auth/google/callback?token=${data.accessToken}&userId=${data.user.id}&email=${encodeURIComponent(data.user.email)}`,
-		)
+		const cookieOpts = {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax' as const,
+			maxAge: 7 * 24 * 60 * 60 * 1000,
+		}
+		res.cookie('ht_token', data.accessToken, cookieOpts)
+		res.redirect(`${frontendUrl}/auth/google/callback`)
+	}
+
+	@Post('logout')
+	@UseGuards(JwtAuthGuard)
+	async logout(@Res({ passthrough: true }) res: Response) {
+		res.clearCookie('ht_token', {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax' as const,
+		})
+		return { success: true }
+	}
+
+	@Get('me')
+	@UseGuards(JwtAuthGuard)
+	async me(@Req() req: Request): Promise<ApiResponse> {
+		const user = (req as any).user || null
+		return { success: true, data: user }
 	}
 }

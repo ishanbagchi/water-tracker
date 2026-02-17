@@ -1,31 +1,38 @@
-/** localStorage key for the JWT token */
-const TOKEN_KEY = 'ht_token'
 const USER_KEY = 'ht_user'
 
-export function getToken(): string | null {
-	if (typeof window === 'undefined') return null
-	return localStorage.getItem(TOKEN_KEY)
-}
-
-export function setToken(token: string): void {
-	localStorage.setItem(TOKEN_KEY, token)
-}
-
-export function removeToken(): void {
-	localStorage.removeItem(TOKEN_KEY)
+export function removeUserToken(): void {
+	if (typeof window === 'undefined') return
 	localStorage.removeItem(USER_KEY)
 }
 
 export function isAuthenticated(): boolean {
-	return !!getToken()
+	return !!getUser()
 }
 
-export function setUser(user: { id: string; email: string }): void {
-	localStorage.setItem(USER_KEY, JSON.stringify(user))
-}
-
-export function getUser(): { id: string; email: string } | null {
+export function getUser() {
 	if (typeof window === 'undefined') return null
 	const raw = localStorage.getItem(USER_KEY)
-	return raw ? JSON.parse(raw) : null
+
+	if (!raw || raw === 'undefined' || raw === 'null') {
+		return null
+	}
+
+	try {
+		return JSON.parse(raw)
+	} catch (e) {
+		console.error('Failed to parse user from local storage', e)
+		localStorage.removeItem(USER_KEY)
+		return null
+	}
+}
+
+export function setUser(user: any) {
+	if (typeof window === 'undefined') return
+
+	if (!user) {
+		localStorage.removeItem(USER_KEY)
+		return
+	}
+
+	localStorage.setItem(USER_KEY, JSON.stringify(user))
 }

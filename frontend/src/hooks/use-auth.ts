@@ -1,8 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import apiClient from '@/lib/api-client'
-import { setToken, setUser, removeToken } from '@/lib/auth'
+import { setUser, removeUserToken } from '@/lib/auth'
 import type { ApiResponse, AuthResponse } from '@/types'
+import { useCallback } from 'react'
 
 /** POST /auth/register */
 export function useRegister() {
@@ -17,9 +18,14 @@ export function useRegister() {
 			return data.data
 		},
 		onSuccess: (data) => {
-			setToken(data.accessToken)
-			setUser(data.user)
-			router.push('/')
+			const user = (data as any).user ?? data
+
+			if (user) {
+				setUser(user)
+				router.replace('/')
+			} else {
+				console.error('Login succeeded but no user data found:', data)
+			}
 		},
 	})
 }
@@ -37,9 +43,9 @@ export function useLogin() {
 			return data.data
 		},
 		onSuccess: (data) => {
-			setToken(data.accessToken)
-			setUser(data.user)
-			router.push('/')
+			const user = (data as any).user ?? data
+			setUser(user)
+			router.replace('/')
 		},
 	})
 }
@@ -48,8 +54,14 @@ export function useLogin() {
 export function useLogout() {
 	const router = useRouter()
 
-	return () => {
-		removeToken()
-		router.push('/login')
-	}
+	const logout = useCallback(async () => {
+		try {
+			await apiClient.post('/auth/logout').catch(() => {})
+		} finally {
+			removeUserToken()
+			router.replace('/login')
+		}
+	}, [router])
+
+	return logout
 }

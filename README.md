@@ -54,16 +54,16 @@ HydroTrack follows a modular, monolithic architecture designed for maintainabili
 
 ```mermaid
 graph TD
-    Client[Next.js Client (PWA)]
+    Client["Next.js Client (PWA)"]
     
     subgraph "Backend Infrastructure"
-        API[NestJS API Gateway]
-        Auth[Auth Module (JWT/OAuth)]
-        UserMod[User Module]
-        WaterMod[Water Module]
+        API["NestJS API Gateway"]
+        Auth["Auth Module (JWT/OAuth)"]
+        UserMod["User Module"]
+        WaterMod["Water Module"]
     end
     
-    DB[(MongoDB Atlas)]
+    DB[("MongoDB Atlas")]
     
     Client -->|REST / TanStack Query| API
     API --> Auth

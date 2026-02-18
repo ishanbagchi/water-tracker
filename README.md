@@ -1,66 +1,92 @@
 # 💧 HydroTrack
 
-A minimalist full-stack water intake tracker built to help you build healthy hydration habits.
+> **A minimalist, timezone-aware hydration tracker designed for night owls and power users.**
 
-![NestJS](https://img.shields.io/badge/NestJS-10-ea2845?logo=nestjs&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-14-000?logo=next.js&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-
----
-
-## ✨ Features
-
-- **Quick Logging** — One-tap buttons for common amounts (customizable 1–5 presets)
-- **Daily Progress** — Visual progress bar with remaining / consumed stats
-- **7-Day Chart** — Interactive ECharts bar/line chart with goal marker line
-- **Monthly Calendar** — Fixed-height, color-coded goal calendar with clickable day details
-- **Day Reset Time** — Configurable day boundary (e.g., 4 AM for night owls)
-- **Timezone Aware** — Auto-detects browser timezone for accurate day calculations
-- **Google OAuth** — Sign in with Google alongside email/password auth
-- **Change Password** — Update password from settings (email/password accounts)
-- **Dark Mode** — Follows system preference via Tailwind CSS
-- **Fully Responsive** — Mobile-first design that works on all screen sizes
+[![NestJS](https://img.shields.io/badge/Backend-NestJS_10-ea2845?logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![Next.js](https://img.shields.io/badge/Frontend-Next.js_14-000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![PWA](https://img.shields.io/badge/Mobile-PWA_Ready-5A0FC8?logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB_Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
-## 🏗 Tech Stack
+## 🖼️ Preview
 
-| Layer         | Technology                                                          |
-| ------------- | ------------------------------------------------------------------- |
-| **Frontend**  | Next.js 14 (App Router), React 18, Tailwind CSS 3, TanStack Query 5 |
-| **Backend**   | NestJS 10, Passport JWT + Google OAuth, class-validator DTOs        |
-| **Database**  | MongoDB Atlas with Mongoose 8 ODM                                   |
-| **Charts**    | Apache ECharts (tree-shaken, SSR-safe via `next/dynamic`)           |
-| **Animation** | Framer Motion 11                                                    |
-| **Icons**     | Lucide React                                                        |
+![HydroTrack Dashboard Preview](https://placehold.co/1200x600/e2e8f0/475569?text=Dashboard+Screenshot+Coming+Soon)
+
+## 💡 Why HydroTrack?
+
+Most water trackers assume everyone sleeps at midnight. As a developer who often works late, I found that standard apps would reset my progress while I was still awake, breaking my streak and motivation.
+
+**HydroTrack solves this with:**
+1.  **Configurable Day Boundaries:** Users can set their "day start" to 4 AM (or any time), ensuring late-night water intake counts towards the *current* wake cycle.
+2.  **Timezone Intelligence:** Auto-detects browser timezones to keep logs accurate even when traveling.
+3.  **Zero-Friction UX:** One-tap logging with optimistic UI updates for an app that feels instant.
 
 ---
 
-## 📁 Project Structure
+## ✨ Key Features
+
+### 📱 Native-Like Mobile Experience (PWA)
+- **Installable:** Fully functional Progressive Web App (PWA) that can be installed on iOS and Android home screens.
+- **Offline Capabilities:** Service workers cache core assets, allowing the app to load instantly even on flaky networks.
+- **Responsive Design:** Mobile-first UI with touch-friendly controls and pull-to-refresh interactions.
+
+### 🧠 Smart Tracking
+- **Night Owl Support:** Configurable "Day Reset" time (e.g., 4:00 AM) handles irregular sleep schedules.
+- **Timezone Aware:** Server-side logic respects the user's local time for accurate streaks.
+- **Smart Presets:** Customizable 1-tap buttons (100ml - 1000ml) for quick logging.
+
+### 📊 Visual Analytics
+- **Interactive Charts:** Tree-shaken **Apache ECharts** for 7-day and monthly trends.
+- **Goal Visualization:** Dynamic progress bars and color-coded calendar views.
+- **Instant Feedback:** Animated micro-interactions using **Framer Motion**.
+
+### 🛡️ Enterprise-Grade Auth
+- **Hybrid Auth:** Support for both Email/Password and **Google OAuth 2.0**.
+- **Security:** Bcrypt password hashing, JWT-based stateless sessions, and guarded API routes.
+
+---
+
+## 🏗️ System Architecture
+
+HydroTrack follows a modular, monolithic architecture designed for maintainability and type safety.
+
+```mermaid
+graph TD
+    Client[Next.js Client (PWA)]
+    
+    subgraph "Backend Infrastructure"
+        API[NestJS API Gateway]
+        Auth[Auth Module (JWT/OAuth)]
+        UserMod[User Module]
+        WaterMod[Water Module]
+    end
+    
+    DB[(MongoDB Atlas)]
+    
+    Client -->|REST / TanStack Query| API
+    API --> Auth
+    API --> UserMod
+    API --> WaterMod
+    WaterMod -->|Mongoose| DB
+    UserMod -->|Mongoose| DB
 
 ```
-water-tracker/
-├── backend/                    # NestJS REST API
-│   └── src/
-│       ├── common/             # Shared utils, interfaces, filters
-│       └── modules/
-│           ├── auth/           # JWT + Google OAuth strategies & guards
-│           ├── user/           # User profile, settings, change password
-│           └── water/          # Water logging CRUD & aggregations
-│
-├── frontend/                   # Next.js 14 App Router
-│   └── src/
-│       ├── app/                # Pages (dashboard, history, settings, auth)
-│       ├── components/         # UI, layout, and water components
-│       ├── hooks/              # TanStack Query hooks (auth, user, water)
-│       ├── lib/                # Axios client, auth helpers, utils
-│       └── types/              # Shared TypeScript interfaces
-│
-├── PRD.md                      # Product Requirements Document
-├── TRD.md                      # Technical Requirements Document
-└── future-roadmap.md           # Roadmap for future features
-```
+
+---
+
+## 🛠 Tech Stack
+
+| Domain | Technology Choice | Rationale |
+| --- | --- | --- |
+| **Frontend** | **Next.js 14 (App Router)** | Server Components for performance; SEO optimization. |
+| **Mobile** | **PWA (Manifest + SW)** | Native-like experience without app store friction. |
+| **State** | **TanStack Query v5** | Server-state management, caching, and optimistic updates. |
+| **Styling** | **Tailwind CSS + Lucide** | Utility-first styling with consistent iconography. |
+| **Backend** | **NestJS 10** | Angular-style dependency injection and modular architecture. |
+| **Database** | **MongoDB + Mongoose** | Flexible schema for evolving data; Aggregation pipelines for stats. |
+| **Validation** | **class-validator / DTOs** | Runtime validation to ensure API type safety. |
 
 ---
 
@@ -68,15 +94,15 @@ water-tracker/
 
 ### Prerequisites
 
-- **Node.js** ≥ 18
-- **npm** ≥ 9
-- **MongoDB** — local instance or [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
+* **Node.js** ≥ 18
+* **MongoDB** (Local or Atlas URI)
 
-### 1. Clone the repository
+### 1. Clone & Install
 
 ```bash
-git clone https://github.com/your-username/water-tracker.git
+git clone [https://github.com/ishanbagchi/water-tracker.git](https://github.com/ishanbagchi/water-tracker.git)
 cd water-tracker
+
 ```
 
 ### 2. Backend Setup
@@ -84,28 +110,32 @@ cd water-tracker
 ```bash
 cd backend
 npm install
+
+# Create environment file
 cp .env.example .env
+
 ```
 
-Edit `.env` with your values:
+**Configure `.env`:**
 
 ```env
-MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/hydrotrack?retryWrites=true&w=majority
-JWT_SECRET=your-secure-random-secret
-JWT_EXPIRATION=7d
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/hydrotrack
+JWT_SECRET=super_secret_key_change_me
 PORT=4000
 FRONTEND_URL=http://localhost:3000
 
-# Optional — Google OAuth (leave empty to disable)
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+# Google OAuth (Optional)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
 GOOGLE_CALLBACK_URL=http://localhost:4000/api/auth/google/callback
+
 ```
 
-Start the dev server:
+Run the server:
 
 ```bash
-npm run start:dev        # http://localhost:4000
+npm run start:dev
+
 ```
 
 ### 3. Frontend Setup
@@ -114,93 +144,66 @@ npm run start:dev        # http://localhost:4000
 cd frontend
 npm install
 cp .env.example .env.local
+
 ```
 
-Edit `.env.local`:
+**Configure `.env.local`:**
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:4000/api
+
 ```
 
-Start the dev server:
+Run the client:
 
 ```bash
-npm run dev              # http://localhost:3000
+npm run dev
+
 ```
 
 ---
 
-## 📡 API Endpoints
+## 📁 Project Structure
 
-All endpoints are prefixed with `/api`.
+This project follows a strict feature-module structure to ensure scalability.
 
-### Auth
+```
+water-tracker/
+├── 📂 backend/
+│   ├── src/modules/auth/     # Strategies (JWT, Google), Guards
+│   ├── src/modules/water/    # Aggregation Pipelines, Services
+│   └── src/common/           # Decorators, Filters, Pipes
+│
+├── 📂 frontend/
+│   ├── public/               # Manifest.json, Service Worker icons
+│   ├── src/app/              # Next.js App Router Pages
+│   ├── src/components/       # Reusable UI (Atomic Design)
+│   ├── src/hooks/            # Custom React Hooks (useWaterData)
+│   └── src/lib/              # API Client & Utils
+│
+└── 📄 documentation/
+    ├── PRD.md                # Product Requirements
+    └── TRD.md                # Technical Requirements
 
-| Method | Endpoint                | Description                      |
-| ------ | ----------------------- | -------------------------------- |
-| POST   | `/auth/register`        | Register with email & password   |
-| POST   | `/auth/login`           | Login and receive JWT            |
-| GET    | `/auth/google`          | Initiate Google OAuth flow       |
-| GET    | `/auth/google/callback` | Google OAuth callback (redirect) |
-
-### User _(JWT required)_
-
-| Method | Endpoint         | Description                                  |
-| ------ | ---------------- | -------------------------------------------- |
-| GET    | `/user/me`       | Get current user profile                     |
-| PATCH  | `/user/settings` | Update settings (goal, unit, timezone, etc.) |
-| PATCH  | `/user/password` | Change password                              |
-
-### Water _(JWT required)_
-
-| Method | Endpoint                    | Description                     |
-| ------ | --------------------------- | ------------------------------- |
-| POST   | `/water/log`                | Log water for today             |
-| GET    | `/water/today`              | Get today's entries & total     |
-| GET    | `/water/history`            | Get last 7 days summary         |
-| GET    | `/water/month/:year/:month` | Get full month aggregate        |
-| GET    | `/water/day/:date`          | Get entries for a specific date |
-| POST   | `/water/log/:date`          | Log water for a specific date   |
-| DELETE | `/water/:id`                | Delete a water entry            |
+```
 
 ---
 
-## 🌐 Deployment
+## 🔮 Future Roadmap
 
-### Backend → Render
-
-1. Create a new **Web Service** on [Render](https://render.com).
-2. Set root directory to `backend`.
-3. Build command: `npm install && npm run build`
-4. Start command: `npm run start:prod`
-5. Add environment variables from `.env.example`.
-6. Whitelist Render's outbound IPs in MongoDB Atlas Network Access.
-
-### Frontend → Vercel
-
-1. Import the repository on [Vercel](https://vercel.com).
-2. Set root directory to `frontend`.
-3. Add `NEXT_PUBLIC_API_URL` env var pointing to your Render backend URL (include `/api`).
-4. Deploy.
-
----
-
-## ⚙️ Google OAuth Setup (Optional)
-
-1. Go to [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials).
-2. Create an **OAuth 2.0 Client ID** (Web application).
-3. Add authorized redirect URI: `https://your-backend.onrender.com/api/auth/google/callback`
-4. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in backend env vars.
-5. The app works without Google OAuth — it gracefully skips registration when credentials aren't set.
-
----
-
-## 📄 License
-
-MIT
+* [ ] **Push Notifications:** Smart reminders based on inactivity.
+* [ ] **Social Features:** Leaderboards and challenges with friends.
+* [ ] **Hydration Factors:** Adjust goals based on weather/activity APIs.
+* [ ] **Wearable Integration:** Sync with Apple Health / Google Fit.
 
 ---
 
 ## 👨‍💻 Author
 
-**Ishan Bagchi** — Built with ❤️ and lots of 💧
+**Ishan Bagchi** *Frontend Engineer & Minimalist Design Enthusiast*
+
+---
+
+<p align="center">
+<i>Built with ❤️, 💧, and lots of caffeine.</i>
+</p>

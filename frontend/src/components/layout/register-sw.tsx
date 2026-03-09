@@ -2,17 +2,20 @@
 
 import { useEffect } from 'react'
 
-/**
- * Registers the service worker on mount.
- * Renders nothing — drop into the layout tree.
- */
 export default function RegisterSW() {
 	useEffect(() => {
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker
-				.register('/sw.js')
-				.catch((err) => console.warn('SW registration failed:', err))
-		}
+		if (!('serviceWorker' in navigator)) return
+
+		navigator.serviceWorker
+			.register('/sw.js')
+			.catch((err) => console.warn('SW registration failed:', err))
+
+		let refreshing = false
+		navigator.serviceWorker.addEventListener('controllerchange', () => {
+			if (refreshing) return
+			refreshing = true
+			window.location.reload()
+		})
 	}, [])
 
 	return null

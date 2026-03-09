@@ -6,19 +6,28 @@ import {
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import * as bcrypt from 'bcrypt'
-import { User, UserDocument } from './schemas'
+import { User, UserDocument, Setting, SettingDocument } from './schemas'
 import { UpdateSettingsDto, ChangePasswordDto } from './dto'
+import { UserProfile, SettingFields } from './interfaces'
 
 @Injectable()
 export class UserService {
 	constructor(
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
-	) {}
+		@InjectModel(Setting.name) private settingModel: Model<SettingDocument>,
+	) { }
 
 	/** Find a user by their MongoDB _id. */
-	async findById(id: string): Promise<UserDocument> {
-		const user = await this.userModel.findById(id).select('-password')
+	async findById(id: string): Promise<UserProfile> {
+		const user = await this.userModel.findById(id).select('-password').lean()
 		if (!user) throw new NotFoundException('User not found')
+		const settings = await this.settingModel.findOne({ userId: id }).lean()
+
+		if (settings) {
+			const { _id, userId, createdAt, updatedAt, __v, ...settingFields } = settings as unknown as SettingFields
+			return { ...user, ...settingFields }
+		}
+
 		return user
 	}
 
@@ -29,7 +38,9 @@ export class UserService {
 
 	/** Create a new user document. */
 	async create(email: string, hashedPassword: string): Promise<UserDocument> {
-		return this.userModel.create({ email, password: hashedPassword })
+		const user = await this.userModel.create({ email, password: hashedPassword })
+		await this.settingModel.create({ userId: user._id })
+		return user
 	}
 
 	/** Find or create a user from Google OAuth profile. */
@@ -50,19 +61,26 @@ export class UserService {
 		}
 
 		// Create a brand-new Google user (no password)
-		return this.userModel.create({ email, googleId })
+		user = await this.userModel.create({ email, googleId })
+		await this.settingModel.create({ userId: user._id })
+		return user
 	}
 
 	/** Update hydration goal / unit preference. */
 	async updateSettings(
 		userId: string,
 		dto: UpdateSettingsDto,
-	): Promise<UserDocument> {
-		const user = await this.userModel
-			.findByIdAndUpdate(userId, { $set: dto }, { new: true })
-			.select('-password')
-		if (!user) throw new NotFoundException('User not found')
-		return user
+	): Promise<SettingDocument> {
+		const settings = await this.settingModel
+			.findOneAndUpdate({ userId }, { $set: dto }, { new: true, upsert: true })
+		return settings
+	}
+
+	/** Get settings by user ID. */
+	async getSettings(userId: string): Promise<SettingDocument> {
+		const settings = await this.settingModel.findOne({ userId })
+		if (!settings) throw new NotFoundException('Settings not found')
+		return settings
 	}
 
 	/** Change the user's password after verifying current password. */

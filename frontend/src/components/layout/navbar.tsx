@@ -4,34 +4,32 @@ import Link from 'next/link'
 import { BarChart3, Settings, Droplets } from 'lucide-react'
 import { Logo } from '@/components/ui'
 
-/**
- * Top navigation bar with links.
- */
 export default function Navbar() {
 	return (
 		<header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
 			<div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
 				{/* Brand */}
-				<Link href="/" className="flex items-center gap-2">
-					<Logo size={24} />
-					<div className="flex flex-col items-start sm:flex-row sm:items-baseline sm:gap-1.5">
-						<span className="text-lg font-bold leading-tight text-gray-900 dark:text-white">
-							HydroTrack
-						</span>
-						<span className="text-[11px] leading-tight text-gray-400">
-							by{' '}
-							<a
-								href="https://ishanbagchi.com"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="underline decoration-gray-300 underline-offset-2 transition-colors hover:text-brand-500 dark:decoration-gray-600"
-								onClick={(e) => e.stopPropagation()}
-							>
-								Ishan Bagchi
-							</a>
-						</span>
-					</div>
-				</Link>
+				<div className="flex items-center gap-2">
+					<Link href="/" className="flex items-center gap-2">
+						<Logo size={24} />
+						<div className="flex flex-col items-start sm:flex-row sm:items-baseline sm:gap-1.5">
+							<span className="text-lg font-bold leading-tight text-gray-900 dark:text-white">
+								HydroTrack
+							</span>
+						</div>
+					</Link>
+					<span className="mt-1 text-[11px] leading-tight text-gray-400">
+						by{' '}
+						<a
+							href="https://ishanbagchi.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="underline decoration-gray-300 underline-offset-2 transition-colors hover:text-brand-500 dark:decoration-gray-600"
+						>
+							Ishan Bagchi
+						</a>
+					</span>
+				</div>
 
 				{/* Nav links */}
 				<nav className="flex items-center gap-1">

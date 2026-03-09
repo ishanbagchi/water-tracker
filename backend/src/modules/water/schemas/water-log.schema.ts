@@ -11,7 +11,6 @@ export class WaterLog {
 	@Prop({ required: true, min: 1 })
 	amount: number
 
-	/** YYYY-MM-DD string for fast daily aggregation (compound-indexed). */
 	@Prop({ required: true })
 	date: string
 
@@ -21,5 +20,4 @@ export class WaterLog {
 
 export const WaterLogSchema = SchemaFactory.createForClass(WaterLog)
 
-// Compound index for high-speed daily aggregation queries.
 WaterLogSchema.index({ userId: 1, date: -1 })

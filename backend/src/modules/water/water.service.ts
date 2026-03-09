@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { Model, Types } from 'mongoose'
+import { FilterQuery, Model, Types } from 'mongoose'
 import { WaterLog, WaterLogDocument } from './schemas'
 import { LogWaterDto } from './dto'
 import { getTodayDateString, getLastNDays } from '../../common/utils'
@@ -18,10 +18,10 @@ export class WaterService {
 	private async getUserDatePrefs(
 		userId: string,
 	): Promise<{ resetHour: number; timezone: string }> {
-		const user = await this.userService.findById(userId)
+		const settings = await this.userService.getSettings(userId)
 		return {
-			resetHour: (user as any).dayResetHour ?? 0,
-			timezone: (user as any).timezone ?? 'UTC',
+			resetHour: settings?.dayResetHour ?? 0,
+			timezone: settings?.timezone ?? 'UTC',
 		}
 	}
 
@@ -167,25 +167,19 @@ export class WaterService {
 		}
 	}
 
-	/**
-	 * Calculate current streak, longest streak, and earned badges.
-	 * A "streak day" is any day where total intake >= daily goal.
-	 */
 	async getStreaks(userId: string) {
-		const user = await this.userService.findById(userId)
-		const goal = (user as any).dailyGoal ?? 2000
+		const settings = await this.userService.getSettings(userId)
+		const goal = settings?.dailyGoal ?? 2000
 		const objectId = new Types.ObjectId(userId)
 		const { resetHour, timezone } = await this.getUserDatePrefs(userId)
 		const today = getTodayDateString(resetHour, timezone)
 
-		// Fetch all days that have any logs, grouped & summed, ordered desc
 		const aggregation = await this.waterLogModel.aggregate([
 			{ $match: { userId: objectId } },
 			{ $group: { _id: '$date', total: { $sum: '$amount' } } },
 			{ $sort: { _id: -1 } },
 		])
 
-		// Build a set of "goal-met" dates
 		const goalMetDates = new Set<string>(
 			aggregation
 				.filter((d: { _id: string; total: number }) => d.total >= goal)
@@ -315,13 +309,9 @@ export class WaterService {
 		}
 	}
 
-	/**
-	 * Get aggregate stats: total logged, average daily, best day,
-	 * goal-hit rate, and per-day breakdown for the requested period.
-	 */
 	async getStats(userId: string, period: 'week' | 'month' | 'all' = 'week') {
-		const user = await this.userService.findById(userId)
-		const goal = (user as any).dailyGoal ?? 2000
+		const settings = await this.userService.getSettings(userId)
+		const goal = settings?.dailyGoal ?? 2000
 		const objectId = new Types.ObjectId(userId)
 		const { resetHour, timezone } = await this.getUserDatePrefs(userId)
 		const today = getTodayDateString(resetHour, timezone)
@@ -340,7 +330,7 @@ export class WaterService {
 			startDate = '2000-01-01' // effectively "all time"
 		}
 
-		const matchStage: any = { userId: objectId }
+		const matchStage: FilterQuery<WaterLogDocument> = { userId: objectId }
 		if (period !== 'all') {
 			matchStage.date = { $gte: startDate, $lte: today }
 		}

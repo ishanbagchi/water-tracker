@@ -15,16 +15,20 @@ export class UserService {
 	constructor(
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
 		@InjectModel(Setting.name) private settingModel: Model<SettingDocument>,
-	) { }
+	) {}
 
 	/** Find a user by their MongoDB _id. */
 	async findById(id: string): Promise<UserProfile> {
-		const user = await this.userModel.findById(id).select('-password').lean()
+		const user = await this.userModel
+			.findById(id)
+			.select('-password')
+			.lean()
 		if (!user) throw new NotFoundException('User not found')
 		const settings = await this.settingModel.findOne({ userId: id }).lean()
 
 		if (settings) {
-			const { _id, userId, createdAt, updatedAt, __v, ...settingFields } = settings as unknown as SettingFields
+			const { _id, userId, createdAt, updatedAt, __v, ...settingFields } =
+				settings as unknown as SettingFields
 			return { ...user, ...settingFields }
 		}
 
@@ -38,7 +42,10 @@ export class UserService {
 
 	/** Create a new user document. */
 	async create(email: string, hashedPassword: string): Promise<UserDocument> {
-		const user = await this.userModel.create({ email, password: hashedPassword })
+		const user = await this.userModel.create({
+			email,
+			password: hashedPassword,
+		})
 		await this.settingModel.create({ userId: user._id })
 		return user
 	}
@@ -71,8 +78,11 @@ export class UserService {
 		userId: string,
 		dto: UpdateSettingsDto,
 	): Promise<SettingDocument> {
-		const settings = await this.settingModel
-			.findOneAndUpdate({ userId }, { $set: dto }, { new: true, upsert: true })
+		const settings = await this.settingModel.findOneAndUpdate(
+			{ userId },
+			{ $set: dto },
+			{ new: true, upsert: true },
+		)
 		return settings
 	}
 

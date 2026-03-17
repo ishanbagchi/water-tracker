@@ -7,6 +7,7 @@ export {
 	useLogWater,
 	useLogWaterForDate,
 	useDeleteWaterEntry,
+	useEditWaterEntry,
 	useStreaks,
 	useStats,
 	waterKeys,

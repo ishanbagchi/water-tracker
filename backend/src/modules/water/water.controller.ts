@@ -2,6 +2,7 @@ import {
 	Controller,
 	Get,
 	Post,
+	Patch,
 	Delete,
 	Param,
 	Body,
@@ -10,7 +11,7 @@ import {
 	Req,
 } from '@nestjs/common'
 import { WaterService } from './water.service'
-import { LogWaterDto } from './dto'
+import { LogWaterDto, UpdateWaterDto } from './dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { ApiResponse } from '../../common/interfaces'
 import { Request } from 'express'
@@ -100,6 +101,20 @@ export class WaterController {
 			period || 'week',
 		)
 		return { success: true, data }
+	}
+
+	@Patch(':id')
+	async updateEntry(
+		@Req() req: Request,
+		@Param('id') id: string,
+		@Body() dto: UpdateWaterDto,
+	): Promise<ApiResponse> {
+		const entry = await this.waterService.updateEntry(
+			(req as any).user.sub,
+			id,
+			dto,
+		)
+		return { success: true, data: entry, message: 'Entry updated' }
 	}
 
 	@Delete(':id')

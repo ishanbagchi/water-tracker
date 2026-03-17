@@ -7,7 +7,7 @@ import {
 	LiquidType,
 	HYDRATION_FACTOR,
 } from './schemas'
-import { LogWaterDto } from './dto'
+import { LogWaterDto, UpdateWaterDto } from './dto'
 import { getTodayDateString, getLastNDays } from '../../common/utils'
 import { UserService } from '../user/user.service'
 
@@ -226,6 +226,27 @@ export class WaterService {
 			date,
 			timestamp: new Date(),
 		})
+	}
+
+	/** Update amount and/or liquid type of an existing entry. */
+	async updateEntry(
+		userId: string,
+		entryId: string,
+		dto: UpdateWaterDto,
+	): Promise<WaterLogDocument> {
+		const entry = await this.waterLogModel.findOne({
+			_id: new Types.ObjectId(entryId),
+			userId: new Types.ObjectId(userId),
+		})
+		if (!entry) throw new NotFoundException('Entry not found')
+
+		if (dto.amount !== undefined) entry.amount = dto.amount
+		if (dto.liquidType !== undefined) entry.liquidType = dto.liquidType
+
+		const type = entry.liquidType as LiquidType
+		entry.hydratedAmount = Math.round(entry.amount * HYDRATION_FACTOR[type])
+
+		return entry.save()
 	}
 
 	/** Delete a specific water log entry (undo). */

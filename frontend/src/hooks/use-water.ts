@@ -138,7 +138,38 @@ export function useDeleteWaterEntry() {
 			queryClient.invalidateQueries({ queryKey: waterKeys.history })
 			queryClient.invalidateQueries({ queryKey: waterKeys.streaks })
 			queryClient.invalidateQueries({ queryKey: ['water', 'stats'] })
-			// Invalidate all day-specific queries too
+			queryClient.invalidateQueries({ queryKey: ['water', 'day'] })
+		},
+	})
+}
+
+export interface EditWaterPayload {
+	entryId: string
+	amount: number
+	liquidType: LiquidType
+}
+
+/** PATCH /water/:id – update amount and/or liquid type of an entry. */
+export function useEditWaterEntry() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: async ({
+			entryId,
+			amount,
+			liquidType,
+		}: EditWaterPayload) => {
+			const { data } = await apiClient.patch<ApiResponse>(
+				`/water/${entryId}`,
+				{ amount, liquidType },
+			)
+			return data.data
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: waterKeys.today })
+			queryClient.invalidateQueries({ queryKey: waterKeys.history })
+			queryClient.invalidateQueries({ queryKey: waterKeys.streaks })
+			queryClient.invalidateQueries({ queryKey: ['water', 'stats'] })
 			queryClient.invalidateQueries({ queryKey: ['water', 'day'] })
 		},
 	})

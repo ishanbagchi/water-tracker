@@ -1,6 +1,7 @@
-import type { WaterEntry, Unit } from '@/types'
+import type { WaterEntry, Unit, LiquidType } from '@/types'
+import type { EditWaterPayload } from '@/hooks/use-water'
 
-export type { WaterEntry, Unit }
+export type { WaterEntry, Unit, LiquidType, EditWaterPayload }
 
 export interface EntryListProps {
 	entries: WaterEntry[]
@@ -12,4 +13,6 @@ export interface EntryItemProps {
 	unit: Unit
 	onDelete: (id: string) => void
 	isDeleting: boolean
+	onEdit: (payload: EditWaterPayload) => void
+	isEditing: boolean
 }

@@ -1,12 +1,13 @@
 'use client'
 
 import { AnimatePresence } from 'framer-motion'
-import { useDeleteWaterEntry } from '@/hooks'
+import { useDeleteWaterEntry, useEditWaterEntry } from '@/hooks'
 import { EntryItem } from './components'
 import type { EntryListProps } from './types'
 
 export default function EntryList({ entries, unit = 'ml' }: EntryListProps) {
 	const deleteEntry = useDeleteWaterEntry()
+	const editEntry = useEditWaterEntry()
 
 	if (entries.length === 0) {
 		return (
@@ -26,6 +27,8 @@ export default function EntryList({ entries, unit = 'ml' }: EntryListProps) {
 						unit={unit}
 						onDelete={(id) => deleteEntry.mutate(id)}
 						isDeleting={deleteEntry.isPending}
+						onEdit={(payload) => editEntry.mutate(payload)}
+						isEditing={editEntry.isPending}
 					/>
 				))}
 			</AnimatePresence>

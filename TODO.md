@@ -1,6 +1,6 @@
 # 📋 HydroTrack — Feature Tracker
 
-**Last Updated:** March 17, 2026
+**Last Updated:** March 18, 2026
 
 ---
 
@@ -30,7 +30,7 @@
 - [x] PWA support (installable, offline-capable service worker)
 - [ ] **Export Data** — Download history as CSV or JSON from settings
 - [ ] **Undo Last Entry** — Toast with undo action after logging water
-- [ ] **Entry Editing** — Edit an existing log's amount instead of delete + re-add
+- [x] **Entry Editing** — Edit an existing log's amount instead of delete + re-add
 
 ### Medium Effort
 

@@ -16,19 +16,19 @@ export default function Navbar() {
 							<span className="text-lg font-bold leading-tight text-gray-900 dark:text-white">
 								HydroTrack
 							</span>
+							<span className="text-[11px] leading-tight text-gray-400">
+								by{' '}
+								<a
+									href="https://ishanbagchi.com"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="underline decoration-gray-300 underline-offset-2 transition-colors hover:text-brand-500 dark:decoration-gray-600"
+								>
+									Ishan Bagchi
+								</a>
+							</span>
 						</div>
 					</Link>
-					<span className="mt-1 text-[11px] leading-tight text-gray-400">
-						by{' '}
-						<a
-							href="https://ishanbagchi.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="underline decoration-gray-300 underline-offset-2 transition-colors hover:text-brand-500 dark:decoration-gray-600"
-						>
-							Ishan Bagchi
-						</a>
-					</span>
 				</div>
 
 				{/* Nav links */}

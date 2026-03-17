@@ -131,8 +131,8 @@ export function StatsRow({ current, remaining, goal, unit }: StatsRowProps) {
 	return (
 		<div className="flex w-full max-w-xs divide-x divide-gray-200 text-center dark:divide-gray-700">
 			{stats.map(({ label, value }) => (
-				<div key={label} className="flex-1 px-3">
-					<p className="text-base font-semibold text-gray-900 dark:text-white">
+				<div key={label} className="flex-1 px-2">
+					<p className="whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
 						{formatAmount(value, unit)}
 					</p>
 					<p className="text-xs text-gray-400">{label}</p>

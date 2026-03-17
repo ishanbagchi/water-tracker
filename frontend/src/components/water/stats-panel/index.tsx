@@ -85,16 +85,16 @@ export default function StatsPanel() {
 	return (
 		<div className="space-y-3">
 			{/* Period toggle */}
-		<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-			<h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-				Stats
-			</h2>
-			<div className="flex w-full overflow-hidden rounded-lg border border-gray-200 sm:w-auto dark:border-gray-700">
-				{(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
-					<button
-						key={p}
-						onClick={() => setPeriod(p)}
-						className={`flex flex-1 items-center justify-center px-3 py-2 text-xs font-medium transition-colors sm:flex-none sm:py-1.5 ${
+			<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+				<h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+					Stats
+				</h2>
+				<div className="flex w-full overflow-hidden rounded-lg border border-gray-200 sm:w-auto dark:border-gray-700">
+					{(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
+						<button
+							key={p}
+							onClick={() => setPeriod(p)}
+							className={`flex flex-1 items-center justify-center px-3 py-2 text-xs font-medium transition-colors sm:flex-none sm:py-1.5 ${
 								period === p
 									? 'bg-brand-500 text-white'
 									: 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'

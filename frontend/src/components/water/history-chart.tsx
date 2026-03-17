@@ -410,7 +410,7 @@ export default function HistoryChart({ data, goal }: HistoryChartProps) {
 				<div className="flex items-center gap-2">
 					<button
 						onClick={() => setShowByType((v) => !v)}
-						className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors sm:flex-none sm:py-1.5 ${
+						className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors sm:py-1.5 ${
 							showByType
 								? 'border-brand-200 bg-brand-50 text-brand-600 dark:border-brand-800 dark:bg-brand-950 dark:text-brand-400'
 								: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'

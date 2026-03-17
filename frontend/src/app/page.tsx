@@ -4,8 +4,7 @@ import { Navbar, AuthGuard } from '@/components/layout'
 import { Card } from '@/components/ui'
 import {
 	WaterProgress,
-	QuickAddButtons,
-	ManualEntry,
+	AddWater,
 	EntryList,
 	StreakCard,
 } from '@/components/water'
@@ -45,20 +44,12 @@ export default function DashboardPage() {
 							<StreakCard />
 						</Card>
 
-						{/* Quick-add buttons */}
+						{/* Add water */}
 						<Card>
-							<h2 className="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400">
-								Quick Add
+							<h2 className="mb-4 text-sm font-semibold text-gray-500 dark:text-gray-400">
+								Add Water
 							</h2>
-							<QuickAddButtons />
-						</Card>
-
-						{/* Manual entry */}
-						<Card>
-							<h2 className="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400">
-								Custom Amount
-							</h2>
-							<ManualEntry />
+							<AddWater />
 						</Card>
 
 						{/* Today's entries */}

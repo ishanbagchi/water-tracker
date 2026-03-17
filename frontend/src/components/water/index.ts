@@ -1,4 +1,5 @@
 export { default as WaterProgress } from './water-progress'
+export { default as AddWater } from './add-water'
 export { default as QuickAddButtons } from './quick-add-buttons'
 export { default as ManualEntry } from './manual-entry'
 export { default as EntryList } from './entry-list'

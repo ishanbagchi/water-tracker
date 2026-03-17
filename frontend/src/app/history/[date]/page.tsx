@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card } from '@/components/ui'
-import { QuickAddButtons, ManualEntry, EntryList } from '@/components/water'
+import { AddWater, EntryList } from '@/components/water'
 import { useWaterByDate, useUser } from '@/hooks'
 
 export default function DayDetailPage() {
@@ -72,28 +72,25 @@ export default function DayDetailPage() {
 								<motion.div
 									initial={{ width: 0 }}
 									animate={{ width: `${progressPct}%` }}
-									transition={{ duration: 0.6, ease: 'easeOut' }}
+									transition={{
+										duration: 0.6,
+										ease: 'easeOut',
+									}}
 									className={`h-full rounded-full ${
-										metGoal ? 'bg-green-500' : 'bg-brand-500'
+										metGoal
+											? 'bg-green-500'
+											: 'bg-brand-500'
 									}`}
 								/>
 							</div>
 						</Card>
 
-						{/* Quick-add buttons */}
+						{/* Add water */}
 						<Card>
-							<h2 className="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400">
-								Quick Add
+							<h2 className="mb-4 text-sm font-semibold text-gray-500 dark:text-gray-400">
+								Add Water
 							</h2>
-							<QuickAddButtons date={date} />
-						</Card>
-
-						{/* Custom amount */}
-						<Card>
-							<h2 className="mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400">
-								Custom Amount
-							</h2>
-							<ManualEntry date={date} />
+							<AddWater date={date} />
 						</Card>
 
 						{/* Entries list */}

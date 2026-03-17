@@ -39,6 +39,7 @@ Most water trackers assume everyone sleeps at midnight. As a developer who often
 - **Night Owl Support:** Configurable "Day Reset" time (e.g., 4:00 AM) handles irregular sleep schedules.
 - **Timezone Aware:** Server-side logic respects the user's local time for accurate streaks.
 - **Smart Presets:** Customizable 1-tap buttons (100ml - 1000ml) for quick logging.
+- **Inline Entry Editing:** Edit the amount or beverage type of any logged entry directly in the list — no modals.
 
 ### 📊 Visual Analytics
 
@@ -189,6 +190,7 @@ water-tracker/
 │   │       ├── entry-list/        # Log entry list (index, components, types)
 │   │       ├── stats-panel/       # Stats panel (index, types, constants)
 │   │       ├── shared/            # Cross-component constants & primitives
+│   │       ├── add-water.tsx      # Combined quick-add + custom-amount (shared beverage picker)
 │   │       └── *.tsx              # Other single-file water components
 │   ├── src/hooks/                 # Custom React Hooks
 │   ├── src/lib/                   # API client & utils

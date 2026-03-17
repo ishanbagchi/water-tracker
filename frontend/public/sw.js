@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hydrotrack-v1.2'
+const CACHE_NAME = 'hydrotrack-v1.3'
 const APP_SHELL = ['/', '/manifest.json', '/favicon.svg']
 
 self.addEventListener('install', (event) => {

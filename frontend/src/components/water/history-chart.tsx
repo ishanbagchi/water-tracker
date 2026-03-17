@@ -389,7 +389,7 @@ export default function HistoryChart({ data, goal }: HistoryChartProps) {
 	) => (
 		<button
 			onClick={() => setMode(m)}
-			className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+			className={`flex flex-1 items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors sm:flex-none sm:py-1.5 ${
 				mode === m
 					? 'bg-brand-500 text-white'
 					: 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
@@ -403,14 +403,14 @@ export default function HistoryChart({ data, goal }: HistoryChartProps) {
 
 	return (
 		<div className="space-y-3">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 				<h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400">
 					7-Day Overview
 				</h2>
 				<div className="flex items-center gap-2">
 					<button
 						onClick={() => setShowByType((v) => !v)}
-						className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+						className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors sm:flex-none sm:py-1.5 ${
 							showByType
 								? 'border-brand-200 bg-brand-50 text-brand-600 dark:border-brand-800 dark:bg-brand-950 dark:text-brand-400'
 								: 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
@@ -419,7 +419,7 @@ export default function HistoryChart({ data, goal }: HistoryChartProps) {
 						<Layers className="h-3.5 w-3.5" />
 						By Type
 					</button>
-					<div className="flex overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+					<div className="flex flex-1 overflow-hidden rounded-lg border border-gray-200 sm:flex-none dark:border-gray-700">
 						{toggleButton('bar', 'Bar', BarChart3)}
 						{toggleButton('line', 'Line', TrendingUp)}
 					</div>

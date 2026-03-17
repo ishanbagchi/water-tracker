@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Droplets } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useWaterMonth, useUser } from '@/hooks'
+import { LoadingSpinner } from './shared/components'
 
 const DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 /** Always render 6 rows × 7 cols = 42 cells for a fixed-height grid. */
@@ -108,9 +109,7 @@ export default function GoalCalendar() {
 			{/* Fixed-height grid area */}
 			<div className="h-[236px]">
 				{isLoading ? (
-					<div className="flex h-full items-center justify-center">
-						<div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
-					</div>
+					<LoadingSpinner className="h-full" />
 				) : (
 					<AnimatePresence mode="wait">
 						<motion.div

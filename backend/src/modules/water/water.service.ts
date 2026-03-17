@@ -1,7 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { FilterQuery, Model, Types } from 'mongoose'
-import { WaterLog, WaterLogDocument } from './schemas'
+import {
+	WaterLog,
+	WaterLogDocument,
+	LiquidType,
+	HYDRATION_FACTOR,
+} from './schemas'
 import { LogWaterDto } from './dto'
 import { getTodayDateString, getLastNDays } from '../../common/utils'
 import { UserService } from '../user/user.service'
@@ -31,14 +36,17 @@ export class WaterService {
 		dto: LogWaterDto,
 	): Promise<WaterLogDocument> {
 		const { resetHour, timezone } = await this.getUserDatePrefs(userId)
+		const type = dto.liquidType ?? LiquidType.WATER
+		const hydratedAmount = Math.round(dto.amount * HYDRATION_FACTOR[type])
 		return this.waterLogModel.create({
 			userId: new Types.ObjectId(userId),
 			amount: dto.amount,
+			liquidType: type,
+			hydratedAmount,
 			date: getTodayDateString(resetHour, timezone),
 			timestamp: new Date(),
 		})
 	}
-
 	/** Get today's total consumption and individual entries. */
 	async getToday(userId: string) {
 		const { resetHour, timezone } = await this.getUserDatePrefs(userId)
@@ -52,7 +60,14 @@ export class WaterService {
 				.lean(),
 			this.waterLogModel.aggregate([
 				{ $match: { userId: objectId, date } },
-				{ $group: { _id: null, total: { $sum: '$amount' } } },
+				{
+					$group: {
+						_id: null,
+						total: {
+							$sum: { $ifNull: ['$hydratedAmount', '$amount'] },
+						},
+					},
+				},
 			]),
 		])
 
@@ -61,29 +76,68 @@ export class WaterService {
 		return { date, total, entries }
 	}
 
-	/** Get aggregated daily totals for the last 7 days. */
+	/** Get aggregated daily totals for the last 7 days, with per-type breakdown. */
 	async getHistory(userId: string) {
 		const { resetHour, timezone } = await this.getUserDatePrefs(userId)
 		const objectId = new Types.ObjectId(userId)
 		const dates = getLastNDays(7, resetHour, timezone)
 
-		const aggregation = await this.waterLogModel.aggregate([
-			{ $match: { userId: objectId, date: { $in: dates } } },
-			{ $group: { _id: '$date', total: { $sum: '$amount' } } },
-			{ $sort: { _id: 1 } },
+		const [totalsAgg, typeAgg] = await Promise.all([
+			this.waterLogModel.aggregate([
+				{ $match: { userId: objectId, date: { $in: dates } } },
+				{
+					$group: {
+						_id: '$date',
+						total: {
+							$sum: { $ifNull: ['$hydratedAmount', '$amount'] },
+						},
+					},
+				},
+				{ $sort: { _id: 1 } },
+			]),
+			this.waterLogModel.aggregate([
+				{ $match: { userId: objectId, date: { $in: dates } } },
+				{
+					$group: {
+						_id: {
+							date: '$date',
+							liquidType: { $ifNull: ['$liquidType', 'water'] },
+						},
+						total: {
+							$sum: { $ifNull: ['$hydratedAmount', '$amount'] },
+						},
+					},
+				},
+			]),
 		])
 
-		// Fill in zero-value days to ensure a complete 7-day array
-		const historyMap = new Map(
-			aggregation.map((d: { _id: string; total: number }) => [
+		const totalsMap = new Map(
+			totalsAgg.map((d: { _id: string; total: number }) => [
 				d._id,
 				d.total,
 			]),
 		)
 
+		const typeMap = new Map<
+			string,
+			{ liquidType: string; total: number }[]
+		>()
+		for (const d of typeAgg as {
+			_id: { date: string; liquidType: string }
+			total: number
+		}[]) {
+			const existing = typeMap.get(d._id.date) ?? []
+			existing.push({ liquidType: d._id.liquidType, total: d.total })
+			typeMap.set(d._id.date, existing)
+		}
+
 		return dates
-			.map((date) => ({ date, total: historyMap.get(date) ?? 0 }))
-			.reverse() // chronological order (oldest → newest)
+			.map((date) => ({
+				date,
+				total: totalsMap.get(date) ?? 0,
+				byType: typeMap.get(date) ?? [],
+			}))
+			.reverse()
 	}
 
 	/** Get entries and total for a specific date. */
@@ -97,7 +151,14 @@ export class WaterService {
 				.lean(),
 			this.waterLogModel.aggregate([
 				{ $match: { userId: objectId, date } },
-				{ $group: { _id: null, total: { $sum: '$amount' } } },
+				{
+					$group: {
+						_id: null,
+						total: {
+							$sum: { $ifNull: ['$hydratedAmount', '$amount'] },
+						},
+					},
+				},
 			]),
 		])
 
@@ -120,7 +181,14 @@ export class WaterService {
 					date: { $gte: startDate, $lte: endDate },
 				},
 			},
-			{ $group: { _id: '$date', total: { $sum: '$amount' } } },
+			{
+				$group: {
+					_id: '$date',
+					total: {
+						$sum: { $ifNull: ['$hydratedAmount', '$amount'] },
+					},
+				},
+			},
 			{ $sort: { _id: 1 } },
 		])
 
@@ -148,9 +216,13 @@ export class WaterService {
 		date: string,
 		dto: LogWaterDto,
 	): Promise<WaterLogDocument> {
+		const type = dto.liquidType ?? LiquidType.WATER
+		const hydratedAmount = Math.round(dto.amount * HYDRATION_FACTOR[type])
 		return this.waterLogModel.create({
 			userId: new Types.ObjectId(userId),
 			amount: dto.amount,
+			liquidType: type,
+			hydratedAmount,
 			date,
 			timestamp: new Date(),
 		})
@@ -176,7 +248,14 @@ export class WaterService {
 
 		const aggregation = await this.waterLogModel.aggregate([
 			{ $match: { userId: objectId } },
-			{ $group: { _id: '$date', total: { $sum: '$amount' } } },
+			{
+				$group: {
+					_id: '$date',
+					total: {
+						$sum: { $ifNull: ['$hydratedAmount', '$amount'] },
+					},
+				},
+			},
 			{ $sort: { _id: -1 } },
 		])
 
@@ -337,7 +416,14 @@ export class WaterService {
 
 		const aggregation = await this.waterLogModel.aggregate([
 			{ $match: matchStage },
-			{ $group: { _id: '$date', total: { $sum: '$amount' } } },
+			{
+				$group: {
+					_id: '$date',
+					total: {
+						$sum: { $ifNull: ['$hydratedAmount', '$amount'] },
+					},
+				},
+			},
 			{ $sort: { _id: 1 } },
 		])
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { LogOut } from 'lucide-react'
+import { LogOut, FlaskConical, ChevronRight } from 'lucide-react'
 import {
 	DndContext,
 	closestCenter,
@@ -25,6 +25,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { Navbar, AuthGuard } from '@/components/layout'
 import { Card, Button, Input } from '@/components/ui'
+import { HydrationInfo } from '@/components/water'
 import {
 	useUser,
 	useUpdateSettings,
@@ -243,6 +244,7 @@ export default function SettingsPage() {
 	)
 
 	const [activeId, setActiveId] = useState<string | null>(null)
+	const [hydrationInfoOpen, setHydrationInfoOpen] = useState(false)
 
 	const handleDragStart = (event: DragStartEvent) => {
 		setActiveId(String(event.active.id))
@@ -581,6 +583,33 @@ export default function SettingsPage() {
 								</form>
 							</Card>
 						)}
+
+						{/* Hydration Science */}
+						<Card className="p-0 overflow-hidden">
+							<button
+								type="button"
+								onClick={() => setHydrationInfoOpen(true)}
+								className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/60"
+							>
+								<span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-950">
+									<FlaskConical className="h-5 w-5 text-brand-500" />
+								</span>
+								<span className="flex-1 min-w-0">
+									<span className="block font-semibold text-gray-900 dark:text-white">
+										Hydration Science
+									</span>
+									<span className="block text-sm text-gray-500 dark:text-gray-400">
+										How we calculate effective hydration
+										from different drinks
+									</span>
+								</span>
+								<ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400" />
+							</button>
+							<HydrationInfo
+								open={hydrationInfoOpen}
+								onOpenChange={setHydrationInfoOpen}
+							/>
+						</Card>
 
 						{/* Logout */}
 						<Card>

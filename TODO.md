@@ -1,6 +1,6 @@
 # 📋 HydroTrack — Feature Tracker
 
-**Last Updated:** February 14, 2026
+**Last Updated:** March 17, 2026
 
 ---
 
@@ -35,7 +35,7 @@
 ### Medium Effort
 
 - [ ] **Hydration Reminders (Email)** — Backend cron job (`@nestjs/schedule`) to nudge if no water logged in 3+ hours
-- [ ] **Beverage Types** — Log what you drank (water, milk, coffee, tea, juice, and custom) with hydration multipliers (e.g., coffee = 0.8×, milk = 0.9×)
+- [x] **Beverage Types** — Log what you drank (water, milk, coffee, tea, juice, and custom) with hydration multipliers (e.g., coffee = 0.8×, milk = 0.9×)
 - [ ] **Profile Page** — Avatar, display name, account creation date, lifetime total
 - [ ] **Monthly PDF Report** — Auto-generated "Hydration Insights" summary with trends
 

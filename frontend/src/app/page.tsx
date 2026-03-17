@@ -33,6 +33,7 @@ export default function DashboardPage() {
 								current={todayData?.total ?? 0}
 								goal={user?.dailyGoal ?? 2000}
 								unit={user?.unit}
+								entries={todayData?.entries}
 							/>
 						</Card>
 

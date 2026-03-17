@@ -7,7 +7,15 @@ import type {
 	MonthData,
 	StreaksData,
 	StatsData,
+	LiquidType,
+	WaterEntry,
 } from '@/types'
+import { HYDRATION_FACTOR } from '@/types'
+
+export interface LogWaterPayload {
+	amount: number
+	liquidType?: LiquidType
+}
 
 // ── Query Keys (centralised for cache invalidation) ──
 export const waterKeys = {
@@ -63,23 +71,39 @@ export function useLogWater() {
 	const queryClient = useQueryClient()
 
 	return useMutation({
-		mutationFn: async (amount: number) => {
+		mutationFn: async ({
+			amount,
+			liquidType = 'water',
+		}: LogWaterPayload) => {
 			const { data } = await apiClient.post<ApiResponse>('/water/log', {
 				amount,
+				liquidType,
 			})
 			return data.data
 		},
-		// Optimistic update: immediately bump the total in cache
-		onMutate: async (amount) => {
+		onMutate: async ({ amount, liquidType = 'water' }) => {
 			await queryClient.cancelQueries({ queryKey: waterKeys.today })
 			const previous = queryClient.getQueryData<TodayData>(
 				waterKeys.today,
 			)
 
 			if (previous) {
+				const hydratedAmount = Math.round(
+					amount * HYDRATION_FACTOR[liquidType],
+				)
+				const tempEntry: WaterEntry = {
+					_id: `optimistic-${Date.now()}`,
+					userId: previous.entries[0]?.userId ?? '',
+					amount,
+					liquidType,
+					hydratedAmount,
+					date: previous.date,
+					timestamp: new Date().toISOString(),
+				}
 				queryClient.setQueryData<TodayData>(waterKeys.today, {
 					...previous,
-					total: previous.total + amount,
+					total: previous.total + hydratedAmount,
+					entries: [...previous.entries, tempEntry],
 				})
 			}
 
@@ -139,10 +163,13 @@ export function useLogWaterForDate(date: string) {
 	const queryClient = useQueryClient()
 
 	return useMutation({
-		mutationFn: async (amount: number) => {
+		mutationFn: async ({
+			amount,
+			liquidType = 'water',
+		}: LogWaterPayload) => {
 			const { data } = await apiClient.post<ApiResponse>(
 				`/water/log/${date}`,
-				{ amount },
+				{ amount, liquidType },
 			)
 			return data.data
 		},

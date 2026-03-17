@@ -19,7 +19,8 @@
 Most water trackers assume everyone sleeps at midnight. As a developer who often works late, I found that standard apps would reset my progress while I was still awake, breaking my streak and motivation.
 
 **HydroTrack solves this with:**
-1.  **Configurable Day Boundaries:** Users can set their "day start" to 4 AM (or any time), ensuring late-night water intake counts towards the *current* wake cycle.
+
+1.  **Configurable Day Boundaries:** Users can set their "day start" to 4 AM (or any time), ensuring late-night water intake counts towards the _current_ wake cycle.
 2.  **Timezone Intelligence:** Auto-detects browser timezones to keep logs accurate even when traveling.
 3.  **Zero-Friction UX:** One-tap logging with optimistic UI updates for an app that feels instant.
 
@@ -28,21 +29,25 @@ Most water trackers assume everyone sleeps at midnight. As a developer who often
 ## ✨ Key Features
 
 ### 📱 Native-Like Mobile Experience (PWA)
+
 - **Installable:** Fully functional Progressive Web App (PWA) that can be installed on iOS and Android home screens.
 - **Offline Capabilities:** Service workers cache core assets, allowing the app to load instantly even on flaky networks.
 - **Responsive Design:** Mobile-first UI with touch-friendly controls and pull-to-refresh interactions.
 
 ### 🧠 Smart Tracking
+
 - **Night Owl Support:** Configurable "Day Reset" time (e.g., 4:00 AM) handles irregular sleep schedules.
 - **Timezone Aware:** Server-side logic respects the user's local time for accurate streaks.
 - **Smart Presets:** Customizable 1-tap buttons (100ml - 1000ml) for quick logging.
 
 ### 📊 Visual Analytics
+
 - **Interactive Charts:** Tree-shaken **Apache ECharts** for 7-day and monthly trends.
 - **Goal Visualization:** Dynamic progress bars and color-coded calendar views.
 - **Instant Feedback:** Animated micro-interactions using **Framer Motion**.
 
 ### 🛡️ Enterprise-Grade Auth
+
 - **Hybrid Auth:** Support for both Email/Password and **Google OAuth 2.0**.
 - **Security:** Bcrypt password hashing, JWT-based stateless sessions, and guarded API routes.
 
@@ -55,16 +60,16 @@ HydroTrack follows a modular, monolithic architecture designed for maintainabili
 ```mermaid
 graph TD
     Client["Next.js Client (PWA)"]
-    
+
     subgraph "Backend Infrastructure"
         API["NestJS API Gateway"]
         Auth["Auth Module (JWT/OAuth)"]
         UserMod["User Module"]
         WaterMod["Water Module"]
     end
-    
+
     DB[("MongoDB Atlas")]
-    
+
     Client -->|REST / TanStack Query| API
     API --> Auth
     API --> UserMod
@@ -78,15 +83,15 @@ graph TD
 
 ## 🛠 Tech Stack
 
-| Domain | Technology Choice | Rationale |
-| --- | --- | --- |
-| **Frontend** | **Next.js 14 (App Router)** | Server Components for performance; SEO optimization. |
-| **Mobile** | **PWA (Manifest + SW)** | Native-like experience without app store friction. |
-| **State** | **TanStack Query v5** | Server-state management, caching, and optimistic updates. |
-| **Styling** | **Tailwind CSS + Lucide** | Utility-first styling with consistent iconography. |
-| **Backend** | **NestJS 10** | Angular-style dependency injection and modular architecture. |
-| **Database** | **MongoDB + Mongoose** | Flexible schema for evolving data; Aggregation pipelines for stats. |
-| **Validation** | **class-validator / DTOs** | Runtime validation to ensure API type safety. |
+| Domain         | Technology Choice           | Rationale                                                           |
+| -------------- | --------------------------- | ------------------------------------------------------------------- |
+| **Frontend**   | **Next.js 14 (App Router)** | Server Components for performance; SEO optimization.                |
+| **Mobile**     | **PWA (Manifest + SW)**     | Native-like experience without app store friction.                  |
+| **State**      | **TanStack Query v5**       | Server-state management, caching, and optimistic updates.           |
+| **Styling**    | **Tailwind CSS + Lucide**   | Utility-first styling with consistent iconography.                  |
+| **Backend**    | **NestJS 10**               | Angular-style dependency injection and modular architecture.        |
+| **Database**   | **MongoDB + Mongoose**      | Flexible schema for evolving data; Aggregation pipelines for stats. |
+| **Validation** | **class-validator / DTOs**  | Runtime validation to ensure API type safety.                       |
 
 ---
 
@@ -94,8 +99,8 @@ graph TD
 
 ### Prerequisites
 
-* **Node.js** ≥ 18
-* **MongoDB** (Local or Atlas URI)
+- **Node.js** ≥ 18
+- **MongoDB** (Local or Atlas URI)
 
 ### 1. Clone & Install
 
@@ -170,20 +175,28 @@ This project follows a strict feature-module structure to ensure scalability.
 ```
 water-tracker/
 ├── 📂 backend/
-│   ├── src/modules/auth/     # Strategies (JWT, Google), Guards
-│   ├── src/modules/water/    # Aggregation Pipelines, Services
-│   └── src/common/           # Decorators, Filters, Pipes
+│   ├── src/modules/auth/          # Strategies (JWT, Google), Guards
+│   ├── src/modules/water/         # Aggregation Pipelines, Services
+│   └── src/common/                # Decorators, Filters, Pipes
 │
 ├── 📂 frontend/
-│   ├── public/               # Manifest.json, Service Worker icons
-│   ├── src/app/              # Next.js App Router Pages
-│   ├── src/components/       # Reusable UI (Atomic Design)
-│   ├── src/hooks/            # Custom React Hooks (useWaterData)
-│   └── src/lib/              # API Client & Utils
+│   ├── public/                    # Manifest, Service Worker, icons
+│   ├── src/app/                   # Next.js App Router pages
+│   ├── src/components/
+│   │   ├── ui/                    # Primitive UI components
+│   │   └── water/
+│   │       ├── water-progress/    # Ring chart (index, components, types, constants)
+│   │       ├── entry-list/        # Log entry list (index, components, types)
+│   │       ├── stats-panel/       # Stats panel (index, types, constants)
+│   │       ├── shared/            # Cross-component constants & primitives
+│   │       └── *.tsx              # Other single-file water components
+│   ├── src/hooks/                 # Custom React Hooks
+│   ├── src/lib/                   # API client & utils
+│   └── src/types/                 # Global TypeScript types
 │
 └── 📄 documentation/
-    ├── PRD.md                # Product Requirements
-    └── TRD.md                # Technical Requirements
+    ├── PRD.md                     # Product Requirements
+    └── TRD.md                     # Technical Requirements
 
 ```
 
@@ -191,16 +204,16 @@ water-tracker/
 
 ## 🔮 Future Roadmap
 
-* [ ] **Push Notifications:** Smart reminders based on inactivity.
-* [ ] **Social Features:** Leaderboards and challenges with friends.
-* [ ] **Hydration Factors:** Adjust goals based on weather/activity APIs.
-* [ ] **Wearable Integration:** Sync with Apple Health / Google Fit.
+- [ ] **Push Notifications:** Smart reminders based on inactivity.
+- [ ] **Social Features:** Leaderboards and challenges with friends.
+- [ ] **Hydration Factors:** Adjust goals based on weather/activity APIs.
+- [ ] **Wearable Integration:** Sync with Apple Health / Google Fit.
 
 ---
 
 ## 👨‍💻 Author
 
-**Ishan Bagchi** *Frontend Engineer & Minimalist Design Enthusiast*
+**Ishan Bagchi** _Frontend Engineer & Minimalist Design Enthusiast_
 
 ---
 

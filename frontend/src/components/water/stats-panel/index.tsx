@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
 	TrendingUp,
@@ -10,26 +10,31 @@ import {
 	Droplets,
 	BarChart3,
 } from 'lucide-react'
-import { useStats, useUser } from '@/hooks'
+import { useStats, useUser, useWaterHistory } from '@/hooks'
 import { formatDateLabel, formatAmount } from '@/lib/utils'
+import { LIQUID_META, type LiquidType } from '@/types'
+import { LIQUID_COLORS } from '../shared/constants'
+import { LoadingSpinner } from '../shared/components'
+import type { Period } from './types'
+import { PERIOD_LABELS } from './constants'
 
-type Period = 'week' | 'month' | 'all'
-
-const PERIOD_LABELS: Record<Period, string> = {
-	week: '7 Days',
-	month: '30 Days',
-	all: 'All Time',
-}
-
-/**
- * Aggregate stats panel: avg daily, best day, goal-hit rate, etc.
- * Supports period toggle (week / month / all).
- */
 export default function StatsPanel() {
 	const [period, setPeriod] = useState<Period>('week')
 	const { data: stats, isLoading } = useStats(period)
 	const { data: user } = useUser()
+	const { data: historyData } = useWaterHistory()
 	const unit = user?.unit ?? 'ml'
+
+	const { typeTotals, grandTotal } = useMemo(() => {
+		const map = new Map<LiquidType, number>()
+		historyData?.forEach((day) =>
+			day.byType?.forEach((b) =>
+				map.set(b.liquidType, (map.get(b.liquidType) ?? 0) + b.total),
+			),
+		)
+		const total = [...map.values()].reduce((s, v) => s + v, 0)
+		return { typeTotals: map, grandTotal: total }
+	}, [historyData])
 
 	const statItems = stats
 		? [
@@ -103,9 +108,7 @@ export default function StatsPanel() {
 
 			{/* Stats grid */}
 			{isLoading ? (
-				<div className="flex h-32 items-center justify-center">
-					<div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
-				</div>
+				<LoadingSpinner className="h-32" />
 			) : (
 				<div className="grid grid-cols-2 gap-3">
 					{statItems.map((item, i) => (
@@ -135,6 +138,68 @@ export default function StatsPanel() {
 							</div>
 						</motion.div>
 					))}
+				</div>
+			)}
+
+			{/* 7-day beverage breakdown */}
+			{typeTotals.size > 0 && (
+				<div className="space-y-2 pt-1">
+					<h3 className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
+						7-Day Beverages
+					</h3>
+					<div className="space-y-2">
+						{[...typeTotals.entries()]
+							.sort((a, b) => b[1] - a[1])
+							.map(([type, total]) => {
+								const meta = LIQUID_META[type]
+								const pct =
+									grandTotal > 0
+										? Math.round((total / grandTotal) * 100)
+										: 0
+								return (
+									<div
+										key={type}
+										className="flex items-center gap-2.5"
+									>
+										<span
+											className="h-2 w-2 shrink-0 rounded-full"
+											style={{
+												background: LIQUID_COLORS[type],
+											}}
+										/>
+										<span className="w-16 truncate text-xs text-gray-500 dark:text-gray-400">
+											{meta.label}
+										</span>
+										<div
+											className="flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700"
+											style={{ height: 6 }}
+										>
+											<motion.div
+												className="h-full rounded-full"
+												style={{
+													background:
+														LIQUID_COLORS[type],
+												}}
+												initial={{ width: 0 }}
+												animate={{ width: `${pct}%` }}
+												transition={{
+													duration: 0.6,
+													ease: 'easeOut',
+												}}
+											/>
+										</div>
+										<span className="min-w-[36px] text-right text-xs text-gray-400 dark:text-gray-500">
+											{pct}%
+										</span>
+										<span className="min-w-[52px] text-right text-xs font-semibold text-gray-700 dark:text-gray-300">
+											{total >= 1000
+												? `${(total / 1000).toFixed(1)}L`
+												: `${total} ml`}
+										</span>
+									</div>
+								)
+							})}
+					</div>
 				</div>
 			)}
 		</div>

@@ -3,20 +3,13 @@
 import { motion } from 'framer-motion'
 import { Flame, Trophy, Target } from 'lucide-react'
 import { useStreaks } from '@/hooks'
+import { LoadingSpinner } from './shared/components'
 
-/**
- * Displays current streak, longest streak, total goal days,
- * and earned badges on the dashboard.
- */
 export default function StreakCard() {
 	const { data: streaks, isLoading } = useStreaks()
 
 	if (isLoading) {
-		return (
-			<div className="flex h-24 items-center justify-center">
-				<div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
-			</div>
-		)
+		return <LoadingSpinner className="h-24" />
 	}
 
 	if (!streaks) return null
